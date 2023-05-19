@@ -15,6 +15,7 @@ namespace rt\Autoload;
 
 function psr4_autoloader(string $pluginDirectory, string $filesDirectory, string $namespace, array $functions = []): void
 {
+    // Autoload classes
     spl_autoload_register(function ($class) use ($pluginDirectory, $filesDirectory, $namespace)
     {
         // Define the base directory for your classes
@@ -36,6 +37,7 @@ function psr4_autoloader(string $pluginDirectory, string $filesDirectory, string
         }
     });
 
+    // Autoload namespaced functions
     if (!empty($functions))
     {
         foreach ($functions as $f)
