@@ -1,10 +1,10 @@
 <?php
 /**
- * RT Discord Webhooks
+ * RT Autoload files
  *
- * A simple integration of discord webhooks with multiple insertions
+ * A custom-made psr4 autoloader for RT plugins.
+ * This function will be included globally and load on-demand classes and functions per plugin.
  *
- * @package rt_discord_webhooks
  * @author  RevertIT <https://github.com/revertit>
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
