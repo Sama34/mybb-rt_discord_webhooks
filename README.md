@@ -2,7 +2,6 @@
 Is a simple but powerful integration of Discord Webhook API where you can customize and insert as many Webhooks as you want and customize the output!
 
 ### Table of contents
-
 1. [❗ Dependencies](#-dependencies)
 2. [📃 Features](#-features)
 3. [➕ Installation](#-installation)
