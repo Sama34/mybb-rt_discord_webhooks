@@ -18,10 +18,10 @@ class Core
     public static array $PLUGIN_DETAILS = [
         'name' => 'RT Discord Webhooks',
         'website' => 'https://github.com/RevertIT/mybb-rt_discord_webhooks',
-        'description' => 'A simple integration of discord webhooks with multiple insertions',
+        'description' => 'A simple integration of Discord Webhooks API',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '0.1',
+        'version' => '1.0',
         'compatibility' => '18*',
         'codename' => 'rt_discord_webhooks',
         'prefix' => 'rt_discord_webhooks',
@@ -106,13 +106,15 @@ class Core
                     id SERIAL PRIMARY KEY,
                     webhook_url TEXT,
                     webhook_type SMALLINT NOT NULL DEFAULT 1,
+                    webhook_embeds SMALLINT NOT NULL DEFAULT 0,
+                    webhook_embeds_color TEXT,
+                    webhook_embeds_footer_text TEXT,
+                    webhook_embeds_footer_icon_url TEXT,
                     bot_id INTEGER NOT NULL DEFAULT 0,
-                    bot_color_name TEXT,
                     watch_new_threads SMALLINT NOT NULL DEFAULT 0,
                     watch_new_posts SMALLINT NOT NULL DEFAULT 0,
                     watch_new_registrations SMALLINT NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
-                    thumbnail_image TEXT,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
@@ -124,13 +126,15 @@ class Core
                     id INTEGER PRIMARY KEY,
                     webhook_url TEXT,
                     webhook_type INTEGER NOT NULL DEFAULT 1,
+                    webhook_embeds INTEGER NOT NULL DEFAULT 0,
+                    webhook_embeds_color TEXT,
+                    webhook_embeds_footer_text TEXT,
+                    webhook_embeds_footer_icon_url TEXT,
                     bot_id INTEGER NOT NULL DEFAULT 0,
-                    bot_color_name TEXT,
                     watch_new_threads INTEGER NOT NULL DEFAULT 0,
                     watch_new_posts INTEGER NOT NULL DEFAULT 0,
                     watch_new_registrations INTEGER NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
-                    thumbnail_image TEXT,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
@@ -142,13 +146,15 @@ class Core
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `webhook_url` TEXT DEFAULT NULL,
                     `webhook_type` TINYINT(4) NOT NULL DEFAULT 1,
+                    `webhook_embeds` TINYINT(4) NOT NULL DEFAULT 0,
+                    `webhook_embeds_color` TEXT DEFAULT NULL,
+                    `webhook_embeds_footer_text` text DEFAULT NULL,
+                    `webhook_embeds_footer_icon_url` text DEFAULT NULL,
                     `bot_id` INT(11) NOT NULL DEFAULT 0,
-                    `bot_color_name` TEXT DEFAULT NULL,
                     `watch_new_threads` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_new_posts` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_new_registrations` TINYINT(4) NOT NULL DEFAULT 0,
                     `character_limit` INT(11) NOT NULL DEFAULT 500,
-                    `thumbnail_image` text DEFAULT NULL,
                     `watch_usergroups` text DEFAULT NULL,
                     `watch_forums` text DEFAULT NULL,
                     PRIMARY KEY(`id`)
@@ -196,7 +202,7 @@ class Core
      *
      * @return void
      */
-    public static function remove_cache()
+    public static function remove_cache(): void
     {
         global $cache;
 

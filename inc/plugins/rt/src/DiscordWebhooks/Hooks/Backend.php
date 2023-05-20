@@ -110,32 +110,30 @@ final class Backend
                 $table->construct_header($form->generate_check_box("allbox", 1, '', array('class' => 'checkall')));
                 $table->construct_header($lang->{$prefix . '_webhooks_url'});
                 $table->construct_header($lang->{$prefix . '_webhooks_type'});
-                $table->construct_header($lang->{$prefix . '_webhooks_bot_id'});
-                $table->construct_header($lang->{$prefix . '_webhooks_bot_color_name'}, [
+                $table->construct_header($lang->{$prefix . '_webhook_embeds'}, [
                     'class' => 'align_center'
                 ]);
+                $table->construct_header($lang->{$prefix . '_webhooks_bot_id'});
                 $table->construct_header($lang->{$prefix . '_webhooks_watch_new_threads'});
                 $table->construct_header($lang->{$prefix . '_webhooks_watch_new_posts'});
                 $table->construct_header($lang->{$prefix . '_webhooks_watch_new_registrations'});
                 $table->construct_header($lang->{$prefix . '_webhooks_watch_usergroups'});
                 $table->construct_header($lang->{$prefix . '_webhooks_watch_forums'});
                 $table->construct_header($lang->{$prefix . '_webhooks_char_limit'});
-                $table->construct_header($lang->{$prefix . '_webhooks_thumbnail_image'});
 
                 $table->construct_header($lang->{$prefix . '_webhooks_controls'});
 
                 foreach ($webhooks_db as $row)
                 {
+                    $row['webhook_url'] = "<a href='index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$row['id']}'>" . htmlspecialchars_uni(ltrim(strstr($row['webhook_url'], "-"), '-')) . "</a>";
                     $row['webhook_type'] = DiscordHelper::getWebhookType((int) $row['webhook_type']);
                     $user = get_user($row['bot_id']);
                     $row['bot_id'] = (int) $row['bot_id'];
                     $row['watch_new_threads'] = !empty($row['watch_new_threads']) ? $lang->rt_discord_webhooks_enabled : $lang->rt_discord_webhooks_disabled;
                     $row['watch_new_posts'] = !empty($row['watch_new_posts']) ? $lang->rt_discord_webhooks_enabled : $lang->rt_discord_webhooks_disabled;
                     $row['watch_new_registrations'] = !empty($row['watch_new_registrations']) ? $lang->rt_discord_webhooks_enabled : $lang->rt_discord_webhooks_disabled;
-                    $row['bot_color_name'] = htmlspecialchars_uni($row['bot_color_name']);
-                    $row['bot_color_name'] = "<span style=\"color: {$row['bot_color_name']}\">{$row['bot_color_name']}</span>";
+                    $row['webhook_embeds'] = !empty($row['webhook_embeds']) ? $lang->rt_discord_webhooks_enabled : $lang->rt_discord_webhooks_disabled;
                     $row['character_limit'] = number_format((float) $row['character_limit']);
-                    $row['thumbnail_image'] = isset($row['thumbnail_image']) ? htmlspecialchars_uni($row['thumbnail_image']) : $lang->na;
                     $row['watch_usergroups'] = htmlspecialchars_uni($row['watch_usergroups']);
                     $row['watch_forums'] = htmlspecialchars_uni($row['watch_forums']);
 
@@ -147,17 +145,17 @@ final class Backend
                     $row['controls'] = "<a href='index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$row['id']}'>{$lang->edit}</a>";
 
                     $table->construct_cell($form->generate_check_box("webhook[{$row['id']}]", $row['id'], ''));
-                    $table->construct_cell(htmlspecialchars_uni($row['webhook_url']), [
+                    $table->construct_cell($row['webhook_url'], [
                         'class' =>  'align_left',
                     ]);
                     $table->construct_cell(htmlspecialchars_uni($row['webhook_type']), [
                         'class' => 'align_left'
                     ]);
+                    $table->construct_cell($row['webhook_embeds'], [
+                        'class' =>  'align_center',
+                    ]);
                     $table->construct_cell($row['bot_id'], [
                         'class' =>  'align_left',
-                    ]);
-                    $table->construct_cell($row['bot_color_name'], [
-                        'class' =>  'align_center',
                     ]);
                     $table->construct_cell($row['watch_new_threads'], [
                         'class' =>  'align_center',
@@ -175,9 +173,6 @@ final class Backend
                         'class' =>  'align_center',
                     ]);
                     $table->construct_cell($row['character_limit'], [
-                        'class' =>  'align_center',
-                    ]);
-                    $table->construct_cell($row['thumbnail_image'], [
                         'class' =>  'align_center',
                     ]);
                     $table->construct_cell($row['controls'], [
@@ -241,9 +236,9 @@ final class Backend
                         flash_message($lang->rt_discord_webhooks_webhooks_bot_id_not_found, 'error');
                         admin_redirect("index.php?module=tools-{$prefix}&amp;action=add_webhook");
                     }
-                    if (!DiscordHelper::isValidHexColor($mybb->get_input('bot_color_name')))
+                    if (!empty($mybb->get_input('webhook_embeds_color')) && !DiscordHelper::isValidHexColor($mybb->get_input('webhook_embeds_color')))
                     {
-                        flash_message($lang->rt_discord_webhooks_webhooks_bot_color_name_invalid, 'error');
+                        flash_message($lang->rt_discord_webhooks_webhook_embeds_color_invalid, 'error');
                         admin_redirect("index.php?module=tools-{$prefix}&amp;action=add_webhook");
                     }
                     if ($mybb->get_input('character_limit', MyBB::INPUT_INT) > 2000)
@@ -272,7 +267,7 @@ final class Backend
                         'webhook_url' => $db->escape_string($mybb->get_input('webhook_url')),
                         'webhook_type' => $mybb->get_input('webhook_type', MyBB::INPUT_INT),
                         'bot_id' => $mybb->get_input('bot_id', MyBB::INPUT_INT),
-                        'bot_color_name' => $db->escape_string($mybb->get_input('bot_color_name')),
+                        'webhook_embeds' => !empty($mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_threads' => !empty($mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_posts' => !empty($mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
@@ -280,9 +275,19 @@ final class Backend
                         'watch_forums' => $db->escape_string($watch_forums)
                     ];
 
-                    if (!empty($mybb->get_input('thumbnail_image')))
+                    if (!empty($mybb->get_input('webhook_embeds_color')))
                     {
-                        $insert_data['thumbnail_image'] = $db->escape_string($mybb->get_input('thumbnail_image'));
+                        $insert_data['webhook_embeds_color'] = $db->escape_string($mybb->get_input('webhook_embeds_color'));
+                    }
+
+                    if (!empty($mybb->get_input('webhook_embeds_footer_text')))
+                    {
+                        $insert_data['webhook_embeds_footer_text'] = $db->escape_string($mybb->get_input('webhook_embeds_footer_text'));
+                    }
+
+                    if (!empty($mybb->get_input('webhook_embeds_footer_icon_url')))
+                    {
+                        $insert_data['webhook_embeds_footer_icon_url'] = $db->escape_string($mybb->get_input('webhook_embeds_footer_icon_url'));
                     }
 
                     if (!empty($mybb->get_input('character_limit')))
@@ -303,13 +308,15 @@ final class Backend
                 $form_container = new FormContainer($lang->rt_discord_webhooks_tab_add_webhook);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_url." <em>*</em>", "", $form->generate_text_box('webhook_url', $mybb->get_input('webhook_url'), array('id' => 'webhook_url')), 'webhook_url');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_type." <em>*</em>", $lang->rt_discord_webhooks_webhooks_type_desc, $form->generate_select_box('webhook_type', [1 => $lang->rt_discord_webhooks_webhooks_type_1, 2 => $lang->rt_discord_webhooks_webhooks_type_2, 3 => $lang->rt_discord_webhooks_webhooks_type_3], $mybb->get_input('webhook_type', MyBB::INPUT_INT), array('id' => 'webhook_type')), 'webhook_type');
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds." <em>*</em>", $lang->rt_discord_webhooks_webhook_embeds_desc, $form->generate_on_off_radio('webhook_embeds', $mybb->get_input('webhook_embeds', MyBB::INPUT_INT), true, array('id' => 'webhook_embeds_on', 'class' => 'webhook_embeds'), array('id' => 'webhook_embeds_off', 'class' => 'webhook_embeds')), 'webhook_embeds');
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_text, "", $form->generate_text_box('webhook_embeds_footer_text', $mybb->get_input('webhook_embeds_footer_text'), array('id' => 'webhook_embeds_footer_text')), 'webhook_embeds_footer_text', ['class' => 'webhook_embeds_footer_text']);
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_icon_url, "", $form->generate_text_box('webhook_embeds_footer_icon_url', $mybb->get_input('webhook_embeds_footer_icon_url'), array('id' => 'webhook_embeds_footer_icon_url')), 'webhook_embeds_footer_icon_url', ['class' => 'webhook_embeds_footer_icon_url']);
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_color, "", $form->generate_text_box('webhook_embeds_color', $mybb->get_input('webhook_embeds_color'), array('id' => 'webhook_embeds_color')), 'webhook_embeds_color', ['class' => 'webhook_embeds_color']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_char_limit." <em>*</em>", $lang->rt_discord_webhooks_webhooks_char_limit_desc, $form->generate_numeric_field('character_limit', $mybb->get_input('character_limit', MyBB::INPUT_INT), array('id' => 'character_limit', 'min' => 1, 'max' => 2000)), 'character_limit');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_id." <em>*</em>", "", $form->generate_numeric_field('bot_id', $mybb->get_input('bot_id', MyBB::INPUT_INT), array('id' => 'bot_id')), 'bot_id');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_color_name." <em>*</em>", "", $form->generate_text_box('bot_color_name', $mybb->get_input('bot_color_name'), array('id' => 'bot_color_name')), 'bot_color_name');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", "", $form->generate_on_off_radio('watch_new_threads', $mybb->get_input('watch_new_threads', MyBB::INPUT_INT), true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", "", $form->generate_on_off_radio('watch_new_posts', $mybb->get_input('watch_new_posts', MyBB::INPUT_INT), true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", "", $form->generate_on_off_radio('watch_new_registrations', $mybb->get_input('watch_new_registrations', MyBB::INPUT_INT), true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_thumbnail_image, "", $form->generate_text_box('thumbnail_image', $mybb->get_input('thumbnail_image'), array('id' => 'thumbnail_image')), 'thumbnail_image');
 
                 $selected_values = [];
                 if (!empty($mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)))
@@ -337,6 +344,17 @@ final class Backend
                 $form->output_submit_wrapper($buttons);
                 $form->end();
 
+                // Add Peekers
+                echo <<<PEEKERS
+                <script type="text/javascript" src="./jscripts/peeker.js?ver=1821"></script>
+                <script type="text/javascript">
+                    $(function()
+                    {
+                        new Peeker($(".webhook_embeds"), $(".webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color"), 1, true);
+                    });
+                </script>
+                PEEKERS;
+
                 $page->output_footer();
             }
             elseif ($mybb->get_input('action') === 'edit_webhook')
@@ -346,41 +364,46 @@ final class Backend
 
                 if ($mybb->request_method === 'post')
                 {
+                    if ($webhooks->totalWebhookRows() > 100)
+                    {
+                        flash_message($lang->rt_discord_webhooks_webhooks_more_than_100, 'error');
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                    }
                     // Validate the webhook URL
                     if (!preg_match('/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$/i', $mybb->get_input('webhook_url')))
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_url_invalid, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
                     if ($webhooks->duplicateWebhookUrl($mybb->get_input('webhook_url')))
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_url_duplicate, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
                     if ($mybb->get_input('webhook_type', MyBB::INPUT_INT) > 3 || $mybb->get_input('webhook_type', MyBB::INPUT_INT) < 1)
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_type_invalid, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
                     if (empty($mybb->get_input('bot_id', MyBB::INPUT_INT)))
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_bot_id_invalid, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
                     if (!get_user($mybb->get_input('bot_id', MyBB::INPUT_INT)))
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_bot_id_not_found, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
-                    if (!DiscordHelper::isValidHexColor($mybb->get_input('bot_color_name')))
+                    if (!empty($mybb->get_input('webhook_embeds_color')) && !DiscordHelper::isValidHexColor($mybb->get_input('webhook_embeds_color')))
                     {
-                        flash_message($lang->rt_discord_webhooks_webhooks_bot_color_name_invalid, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        flash_message($lang->rt_discord_webhooks_webhook_embeds_color_invalid, 'error');
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
                     if ($mybb->get_input('character_limit', MyBB::INPUT_INT) > 2000)
                     {
                         flash_message($lang->rt_discord_webhooks_webhooks_char_limit_invalid, 'error');
-                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&id={$mybb->get_input('id', MyBB::INPUT_INT)}");
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
 
                     $watch_forums = 0;
@@ -403,7 +426,7 @@ final class Backend
                         'webhook_url' => $db->escape_string($mybb->get_input('webhook_url')),
                         'webhook_type' => $mybb->get_input('webhook_type', MyBB::INPUT_INT),
                         'bot_id' => $mybb->get_input('bot_id', MyBB::INPUT_INT),
-                        'bot_color_name' => $db->escape_string($mybb->get_input('bot_color_name')),
+                        'webhook_embeds' => !empty($mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_threads' => !empty($mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_posts' => !empty($mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
@@ -411,9 +434,19 @@ final class Backend
                         'watch_forums' => $db->escape_string($watch_forums)
                     ];
 
-                    if (!empty($mybb->get_input('thumbnail_image')))
+                    if (!empty($mybb->get_input('webhook_embeds_color')))
                     {
-                        $update_data['thumbnail_image'] = $db->escape_string($mybb->get_input('thumbnail_image'));
+                        $update_data['webhook_embeds_color'] = $db->escape_string($mybb->get_input('webhook_embeds_color'));
+                    }
+
+                    if (!empty($mybb->get_input('webhook_embeds_footer_text')))
+                    {
+                        $update_data['webhook_embeds_footer_text'] = $db->escape_string($mybb->get_input('webhook_embeds_footer_text'));
+                    }
+
+                    if (!empty($mybb->get_input('webhook_embeds_footer_icon_url')))
+                    {
+                        $update_data['webhook_embeds_footer_icon_url'] = $db->escape_string($mybb->get_input('webhook_embeds_footer_icon_url'));
                     }
 
                     if (!empty($mybb->get_input('character_limit')))
@@ -447,16 +480,18 @@ final class Backend
                 $row = $webhooks->getWebhookRowArray($mybb->get_input('id', MyBB::INPUT_INT));
 
                 $form = new Form("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}", "post", "edit_webhook");
-                $form_container = new FormContainer($lang->rt_discord_webhooks_tab_edit_webhook);
+                $form_container = new FormContainer($lang->rt_discord_webhooks_tab_add_webhook);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_url." <em>*</em>", "", $form->generate_text_box('webhook_url', $row['webhook_url'], array('id' => 'webhook_url')), 'webhook_url');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_type." <em>*</em>", $lang->rt_discord_webhooks_webhooks_type_desc, $form->generate_select_box('webhook_type', [1 => $lang->rt_discord_webhooks_webhooks_type_1, 2 => $lang->rt_discord_webhooks_webhooks_type_2, 3 => $lang->rt_discord_webhooks_webhooks_type_3], $row['webhook_type'], array('id' => 'webhook_type')), 'webhook_type');
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds." <em>*</em>", $lang->rt_discord_webhooks_webhook_embeds_desc, $form->generate_on_off_radio('webhook_embeds', $row['webhook_embeds'], true, array('id' => 'webhook_embeds_on', 'class' => 'webhook_embeds'), array('id' => 'webhook_embeds_off', 'class' => 'webhook_embeds')), 'webhook_embeds');
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_text, "", $form->generate_text_box('webhook_embeds_footer_text', $row['webhook_embeds_footer_text'], array('id' => 'webhook_embeds_footer_text')), 'webhook_embeds_footer_text', ['class' => 'webhook_embeds_footer_text']);
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_icon_url, "", $form->generate_text_box('webhook_embeds_footer_icon_url', $row['webhook_embeds_footer_icon_url'], array('id' => 'webhook_embeds_footer_icon_url')), 'webhook_embeds_footer_icon_url', ['class' => 'webhook_embeds_footer_icon_url']);
+                $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_color, "", $form->generate_text_box('webhook_embeds_color', $row['webhook_embeds_color'], array('id' => 'webhook_embeds_color')), 'webhook_embeds_color', ['class' => 'webhook_embeds_color']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_char_limit." <em>*</em>", $lang->rt_discord_webhooks_webhooks_char_limit_desc, $form->generate_numeric_field('character_limit', $row['character_limit'], array('id' => 'character_limit', 'min' => 1, 'max' => 2000)), 'character_limit');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_id." <em>*</em>", "", $form->generate_numeric_field('bot_id', $row['bot_id'], array('id' => 'bot_id')), 'bot_id');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_color_name." <em>*</em>", "", $form->generate_text_box('bot_color_name', $row['bot_color_name'], array('id' => 'bot_color_name')), 'bot_color_name');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", "", $form->generate_on_off_radio('watch_new_threads', $row['watch_new_threads'], true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", "", $form->generate_on_off_radio('watch_new_posts', $row['watch_new_posts'], true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", "", $form->generate_on_off_radio('watch_new_registrations', $row['watch_new_registrations'], true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_thumbnail_image, "", $form->generate_text_box('thumbnail_image', $row['thumbnail_image'], array('id' => 'thumbnail_image')), 'thumbnail_image');
 
                 $selected_values = [];
                 if (!empty($row['watch_usergroups']))
@@ -481,11 +516,21 @@ final class Backend
 
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_forums." <em>*</em>", "", $form->generate_forum_select('watch_forums[]', $selected_values, array('multiple' => true, 'size' => 5, 'main_option' => $lang->all_forums)), 'watch_forums');
                 $form_container->end();
-
                 $buttons[] = $form->generate_submit_button($lang->rt_discord_webhooks_webhooks_submit);
 
                 $form->output_submit_wrapper($buttons);
                 $form->end();
+
+                // Add Peekers
+                echo <<<PEEKERS
+                <script type="text/javascript" src="./jscripts/peeker.js?ver=1821"></script>
+                <script type="text/javascript">
+                    $(function()
+                    {
+                        new Peeker($(".webhook_embeds"), $(".webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color"), 1, true);
+                    });
+                </script>
+                PEEKERS;
 
                 $page->output_footer();
             }

@@ -62,7 +62,7 @@ class AdminWebhooksConfig
      */
     public function getWebhookRowsArray(int $per_page = 20): array
     {
-        $pagenum = $this->mybb->get_input('page', \MyBB::INPUT_INT);
+        $pagenum = $this->mybb->get_input('page', MyBB::INPUT_INT);
         $total_rows = $this->totalWebhookRows();
 
         if ($pagenum)

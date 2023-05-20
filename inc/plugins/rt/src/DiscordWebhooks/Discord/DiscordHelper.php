@@ -17,36 +17,49 @@ use rt\DiscordWebhooks\Core;
 
 class DiscordHelper
 {
+    public static function formatMessage(string $text, bool $embeds_enabled = false): string
+    {
+        $conversions = [
+            '/\[b\](.*?)\[\/b\]/is' => "**$1**",
+            '/\[i\](.*?)\[\/i\]/is' => "*$1*",
+            '/\[u\](.*?)\[\/u\]/is' => "__$1__",
+            '/\[s\](.*?)\[\/s\]/is' => "~~$1~~",
+            '/\[url=(.*?)\](.*?)\[\/url\]/is' => "[$2]($1)",
+            '/\[code\](.*?)\[\/code\]/is' => "```$1```",
+            '/\[php\](.*?)\[\/php\]/is' => "```php\n$1```",
+            // Add more conversion rules as needed
+        ];
+
+        if ($embeds_enabled === true)
+        {
+            $conversions['/\[img\](.*?)\[\/img\]/is'] = '';
+        }
+        else
+        {
+            $conversions['/\[img\](.*?)\[\/img\]/is'] = '$1';
+        }
+
+        // Perform the conversions using regular expressions
+        return preg_replace(array_keys($conversions), array_values($conversions), $text);
+    }
+
     /**
-     * Format text for Discord message
+     * Generate image link from [img] tags
      *
-     * @param string $text
+     * @param string $message
      * @return string
      */
-    public static function formatText(string $text): string
+    public static function getImageLink(string $message): string
     {
-        // Convert [b]bold[/b] to **bold**
-        $text = preg_replace('/\[b\](.*?)\[\/b\]/is', '**$1**', $text);
+        preg_match('/\[img](.*?)\[\/img]/i', $message, $matches);
 
-        // Convert [i]italic[/i] to *italic*
-        $text = preg_replace('/\[i\](.*?)\[\/i\]/is', '*$1*', $text);
+        $imageLink = '';
+        if (isset($matches[1]))
+        {
+            $imageLink = $matches[1];
+        }
 
-        // Convert [u]underline[/u] to __underline__
-        $text = preg_replace('/\[u\](.*?)\[\/u\]/is', '__$1__', $text);
-
-        // Convert [url]http://example.com[/url] to [http://example.com](http://example.com)
-        $text = preg_replace('/\[url\](.*?)\[\/url\]/is', '[$1]($1)', $text);
-
-        // Convert [img]http://example.com/image.jpg[/img] to ![Image](http://example.com/image.jpg)
-        $text = preg_replace('/\[img\](.*?)\[\/img\]/is', '![]($1)', $text);
-
-        // Convert [quote]quoted text[/quote] to > quoted text
-        $text = preg_replace('/\[quote\](.*?)\[\/quote\]/is', '> $1', $text);
-
-        // Convert [code]code text[/code] to ```code text```
-        $text = preg_replace('/\[code\](.*?)\[\/code\]/is', '```$1```', $text);
-
-        return $text;
+        return $imageLink;
     }
 
     /**
@@ -110,6 +123,16 @@ class DiscordHelper
 
         // Check if the remaining string is a valid hex color code
         return preg_match('/^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color) === 1;
+    }
+
+    public static function truncateMessage(int $length, string $message): string
+    {
+        if (strlen($message) > $length)
+        {
+            $message = substr($message, 0, $length) . '...';
+        }
+
+        return $message;
     }
 
     /**
