@@ -18,7 +18,7 @@ if (!defined("IN_MYBB"))
 }
 
 // Autoload classes
-require MYBB_ROOT . 'inc/plugins/rt/vendor/autoload.php';
+require_once MYBB_ROOT . 'inc/plugins/rt/vendor/autoload.php';
 
 \rt\Autoload\psr4_autoloader(
     'rt',
