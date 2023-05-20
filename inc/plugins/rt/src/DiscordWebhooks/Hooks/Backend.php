@@ -210,6 +210,11 @@ final class Backend
 
                 if ($mybb->request_method === 'post')
                 {
+                    if ($webhooks->totalWebhookRows() > 100)
+                    {
+                        flash_message($lang->rt_discord_webhooks_webhooks_more_than_100, 'error');
+                        admin_redirect("index.php?module=tools-{$prefix}&amp;action=add_webhook");
+                    }
                     // Validate the webhook URL
                     if (!preg_match('/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$/i', $mybb->get_input('webhook_url')))
                     {

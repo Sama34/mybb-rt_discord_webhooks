@@ -44,12 +44,12 @@ class AdminWebhooksConfig
     {
         $query = $this->db->write_query(<<<SQL
 				SELECT
-					COUNT(*) as logs
+					COUNT(*) as hooks
 				FROM
 					{$this->table_prefix}rt_discord_webhooks
 				SQL);
 
-        return (int) $this->db->fetch_field($query, "logs");
+        return (int) $this->db->fetch_field($query, "hooks");
     }
 
     /**
@@ -88,7 +88,7 @@ class AdminWebhooksConfig
 				FROM
 					{$this->table_prefix}rt_discord_webhooks
 				ORDER BY
-					id
+					id DESC
 				LIMIT
 					{$start}, {$per_page}
 				SQL);

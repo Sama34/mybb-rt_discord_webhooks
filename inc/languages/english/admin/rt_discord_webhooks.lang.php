@@ -50,3 +50,4 @@ $l['rt_discord_webhooks_webhooks_type_3'] = 'Application/Webhook Integration Web
 $l['rt_discord_webhooks_webhooks_type_1_desc'] = 'Incoming (Incoming Webhooks can post messages to channels with a generated token)';
 $l['rt_discord_webhooks_webhooks_type_2_desc'] = 'Channel Follower (Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels)';
 $l['rt_discord_webhooks_webhooks_type_3_desc'] = 'Application (Application webhooks are webhooks used with Interactions)';
+$l['rt_discord_webhooks_webhooks_more_than_100'] = 'You can\'t have more than 100 Webhooks. Please delete older Webhooks to create new ones';
