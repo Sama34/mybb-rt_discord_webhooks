@@ -49,6 +49,7 @@ function rt_discord_webhooks_install(): void
     \rt\DiscordWebhooks\check_php_version();
     \rt\DiscordWebhooks\check_pluginlibrary();
 
+    \rt\DiscordWebhooks\Core::add_database_modifications();
     \rt\DiscordWebhooks\Core::add_settings();
     \rt\DiscordWebhooks\Core::set_cache();
 }
