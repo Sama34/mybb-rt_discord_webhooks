@@ -75,18 +75,23 @@ class DiscordHelper
      */
     public static function getWebhookType(int $type): string
     {
+        global $lang;
+
+        $lang->load(Core::get_plugin_info('prefix'));
+
         $type_string = '';
 
         switch ($type)
         {
             case 1:
-                $type_string = 'Incoming (Incoming Webhooks can post messages to channels with a generated token)';
+                $type_string = $lang->rt_discord_webhooks_webhooks_type_1_desc;
                 break;
             case 2:
-                $type_string = 'Channel Follower (Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels)';
+                $type_string = $lang->rt_discord_webhooks_webhooks_type_2_desc;
                 break;
             case 3:
-                $type_string = 'Application (Application webhooks are webhooks used with Interactions)';
+                $type_string = $lang->rt_discord_webhooks_webhooks_type_3_desc;
+                break;
         }
 
         return $type_string;

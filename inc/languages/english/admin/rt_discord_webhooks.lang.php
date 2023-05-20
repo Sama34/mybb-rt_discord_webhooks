@@ -47,3 +47,6 @@ $l['rt_discord_webhooks_webhooks_edit_not_exist'] = 'The Webhook you are trying 
 $l['rt_discord_webhooks_webhooks_type_1'] = 'Incoming Webhooks';
 $l['rt_discord_webhooks_webhooks_type_2'] = 'Channel Follower Webhooks';
 $l['rt_discord_webhooks_webhooks_type_3'] = 'Application/Webhook Integration Webhooks';
+$l['rt_discord_webhooks_webhooks_type_1_desc'] = 'Incoming (Incoming Webhooks can post messages to channels with a generated token)';
+$l['rt_discord_webhooks_webhooks_type_2_desc'] = 'Channel Follower (Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels)';
+$l['rt_discord_webhooks_webhooks_type_3_desc'] = 'Application (Application webhooks are webhooks used with Interactions)';
