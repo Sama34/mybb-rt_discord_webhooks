@@ -57,6 +57,7 @@ Open a new question by [clicking here](https://github.com/RevertIT/mybb-rt_disco
 Open a new bug report by [clicking here](https://github.com/RevertIT/mybb-rt_discord_webhooks/issues/new)
 
 ### 📷 Preview
+<img src="https://i.postimg.cc/HxL63K3r/dc6.png" alt="Screenshot">
 <img src="https://i.postimg.cc/d00QQ6FC/dc1.png" alt="Screenshot">
 <img src="https://i.postimg.cc/QMn8F7Ny/dc2.png" alt="Screenshot">
 <img src="https://i.postimg.cc/mD0gYFy5/dc5.png" alt="Screenshot">
