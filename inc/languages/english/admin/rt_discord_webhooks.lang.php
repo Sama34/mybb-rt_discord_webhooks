@@ -18,6 +18,7 @@ $l['rt_discord_webhooks_delete_all'] = 'Are you sure you want to delete all Webh
 $l['rt_discord_webhooks_delete_all_deleted'] = 'All Webhooks have been successfully deleted';
 $l['rt_discord_webhooks_notfound'] = 'No Webhooks found at this time';
 $l['rt_discord_webhooks_webhooks_url'] = 'Webhook URL';
+$l['rt_discord_webhooks_webhooks_id'] = 'Webhook ID';
 $l['rt_discord_webhooks_webhooks_url_invalid'] = 'Invalid Webhook URL format';
 $l['rt_discord_webhooks_webhooks_url_duplicate'] = 'Duplicate Webhook URL. You can\'t use same webhook URL in multiple sessions';
 $l['rt_discord_webhooks_webhooks_type'] = 'Webhook type';

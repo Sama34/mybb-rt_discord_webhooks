@@ -108,7 +108,7 @@ final class Backend
 
                 $form = new Form("index.php?module=tools-{$prefix}&amp;action=webhooks", "post", "webhooks");
                 $table->construct_header($form->generate_check_box("allbox", 1, '', array('class' => 'checkall')));
-                $table->construct_header($lang->{$prefix . '_webhooks_url'});
+                $table->construct_header($lang->{$prefix . '_webhooks_id'});
                 $table->construct_header($lang->{$prefix . '_webhooks_type'});
                 $table->construct_header($lang->{$prefix . '_webhook_embeds'}, [
                     'class' => 'align_center'
@@ -125,7 +125,7 @@ final class Backend
 
                 foreach ($webhooks_db as $row)
                 {
-                    $row['webhook_url'] = "<a href='index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$row['id']}'>" . htmlspecialchars_uni(ltrim(strstr($row['webhook_url'], "-"), '-')) . "</a>";
+                    $row['webhook_id'] = "<a href='index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$row['id']}'>" . (preg_match('/\/(\d+)\//', $row['webhook_url'], $webhook_id) ? isset($webhook_id[1]) ? (int) $webhook_id[1] : (int) $row['id'] : (int) $row['id']) . "</a>";
                     $row['webhook_type'] = DiscordHelper::getWebhookType((int) $row['webhook_type']);
                     $user = get_user($row['bot_id']);
                     $row['bot_id'] = (int) $row['bot_id'];
@@ -145,7 +145,7 @@ final class Backend
                     $row['controls'] = "<a href='index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$row['id']}'>{$lang->edit}</a>";
 
                     $table->construct_cell($form->generate_check_box("webhook[{$row['id']}]", $row['id'], ''));
-                    $table->construct_cell($row['webhook_url'], [
+                    $table->construct_cell($row['webhook_id'], [
                         'class' =>  'align_left',
                     ]);
                     $table->construct_cell(htmlspecialchars_uni($row['webhook_type']), [
