@@ -212,14 +212,14 @@ function fetch_api(string $url, string $method = 'GET', array $data = [], array 
         CURLOPT_HTTPHEADER     => $headers,
     ];
 
-    $allowed_methods = ['GET', 'POST', 'PUT', 'DELETE'];
+    $allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
     if (in_array($method, $allowed_methods))
     {
         $curl_info[CURLOPT_CUSTOMREQUEST] =  strtoupper($method);
 
         // Set the data if it's a PUT or POST request
-        if ($method === 'PUT' || $method === 'POST')
+        if ($method === 'PUT' || $method === 'POST' || $method === 'PATCH')
         {
             $curl_info[CURLOPT_POSTFIELDS] = json_encode($data);
         }

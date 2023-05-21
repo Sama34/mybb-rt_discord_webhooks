@@ -252,10 +252,6 @@ final class Backend
                     {
                         $watch_forums =  implode(',', array_map('intval', $mybb->get_input('watch_forums', MyBB::INPUT_ARRAY)));
                     }
-                    elseif ($mybb->get_input('watch_forums') === '-1')
-                    {
-                        $watch_forums = -1;
-                    }
 
                     $watch_usergroups = 0;
                     if (!empty($mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)))
@@ -270,6 +266,10 @@ final class Backend
                         'webhook_embeds' => !empty($mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_threads' => !empty($mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_posts' => !empty($mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_edit_threads' => !empty($mybb->get_input('watch_edit_threads', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_edit_posts' => !empty($mybb->get_input('watch_edit_posts', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_delete_threads' => !empty($mybb->get_input('watch_delete_threads', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_delete_posts' => !empty($mybb->get_input('watch_delete_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_usergroups' => $db->escape_string($watch_usergroups),
                         'watch_forums' => $db->escape_string($watch_forums)
@@ -320,9 +320,13 @@ final class Backend
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_icon_url, "", $form->generate_text_box('webhook_embeds_footer_icon_url', $mybb->get_input('webhook_embeds_footer_icon_url'), array('id' => 'webhook_embeds_footer_icon_url')), 'webhook_embeds_footer_icon_url', ['class' => 'webhook_embeds_footer_icon_url']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_char_limit." <em>*</em>", $lang->rt_discord_webhooks_webhooks_char_limit_desc, $form->generate_numeric_field('character_limit', $mybb->get_input('character_limit', MyBB::INPUT_INT), array('id' => 'character_limit', 'min' => 1, 'max' => 2000)), 'character_limit');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_id." <em>*</em>", "", $form->generate_numeric_field('bot_id', $mybb->get_input('bot_id', MyBB::INPUT_INT), array('id' => 'bot_id')), 'bot_id');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", "", $form->generate_on_off_radio('watch_new_threads', $mybb->get_input('watch_new_threads', MyBB::INPUT_INT), true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", "", $form->generate_on_off_radio('watch_new_posts', $mybb->get_input('watch_new_posts', MyBB::INPUT_INT), true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", "", $form->generate_on_off_radio('watch_new_registrations', $mybb->get_input('watch_new_registrations', MyBB::INPUT_INT), true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_threads_desc, $form->generate_on_off_radio('watch_new_threads', $mybb->get_input('watch_new_threads', MyBB::INPUT_INT), true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_posts_desc, $form->generate_on_off_radio('watch_new_posts', $mybb->get_input('watch_new_posts', MyBB::INPUT_INT), true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_edit_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_edit_threads_desc, $form->generate_on_off_radio('watch_edit_threads', $mybb->get_input('watch_edit_threads', MyBB::INPUT_INT), true, array('id' => 'watch_edit_threads_on'), array('id' => 'watch_edit_threads_off')), 'watch_edit_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_edit_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_edit_posts_desc, $form->generate_on_off_radio('watch_edit_posts', $mybb->get_input('watch_edit_posts', MyBB::INPUT_INT), true, array('id' => 'watch_edit_posts_on'), array('id' => 'watch_edit_posts_off')), 'watch_edit_posts_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_delete_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_delete_threads_desc, $form->generate_on_off_radio('watch_delete_threads', $mybb->get_input('watch_delete_threads', MyBB::INPUT_INT), true, array('id' => 'watch_delete_threads_on'), array('id' => 'watch_delete_threads_off')), 'watch_delete_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_delete_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_delete_posts_desc, $form->generate_on_off_radio('watch_delete_posts', $mybb->get_input('watch_delete_posts', MyBB::INPUT_INT), true, array('id' => 'watch_delete_posts_on'), array('id' => 'watch_delete_posts_off')), 'watch_delete_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_registrations_desc, $form->generate_on_off_radio('watch_new_registrations', $mybb->get_input('watch_new_registrations', MyBB::INPUT_INT), true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
 
                 $selected_values = [];
                 if (!empty($mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)))
@@ -332,7 +336,7 @@ final class Backend
                         $selected_values[] = (int) $value;
                     }
                 }
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_usergroups." <em>*</em>", "", $form->generate_group_select('watch_usergroups[]', $selected_values, array('multiple' => true, 'size' => 5)), 'watch_usergroups');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_usergroups." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_usergroups_desc, $form->generate_group_select('watch_usergroups[]', $selected_values, array('multiple' => true, 'size' => 5)), 'watch_usergroups');
 
                 $selected_values = [];
                 if (!empty($mybb->get_input('watch_forums', MyBB::INPUT_ARRAY)))
@@ -342,7 +346,7 @@ final class Backend
                         $selected_values[] = (int) $value;
                     }
                 }
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_forums." <em>*</em>", "", $form->generate_forum_select('watch_forums[]', $selected_values, array('multiple' => true, 'size' => 5, 'main_option' => $lang->all_forums)), 'watch_forums');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_forums." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_forums_desc, $form->generate_forum_select('watch_forums[]', $selected_values, array('multiple' => true, 'size' => 5, 'main_option' => $lang->all_forums)), 'watch_forums');
                 $form_container->end();
 
                 $buttons[] = $form->generate_submit_button($lang->rt_discord_webhooks_webhooks_submit);
@@ -414,20 +418,16 @@ final class Backend
                         admin_redirect("index.php?module=tools-{$prefix}&amp;action=edit_webhook&amp;id={$mybb->get_input('id', MyBB::INPUT_INT)}");
                     }
 
-                    $watch_forums = 0;
+                    $watch_forums = -1;
                     if (!empty($mybb->get_input('watch_forums', MyBB::INPUT_ARRAY)))
                     {
-                        $watch_forums =  implode(',', array_map('intval', $mybb->get_input('watch_forums', MyBB::INPUT_ARRAY)));
-                    }
-                    elseif ($mybb->get_input('watch_forums') === '-1')
-                    {
-                        $watch_forums = -1;
+                        $watch_forums = implode(',', array_map('intval', $mybb->get_input('watch_forums', MyBB::INPUT_ARRAY)));
                     }
 
                     $watch_usergroups = 0;
                     if (!empty($mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)))
                     {
-                        $watch_usergroups =  implode(',', array_map('intval', $mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)));
+                        $watch_usergroups = implode(',', array_map('intval', $mybb->get_input('watch_usergroups', MyBB::INPUT_ARRAY)));
                     }
 
                     $update_data = [
@@ -437,6 +437,10 @@ final class Backend
                         'webhook_embeds' => !empty($mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_threads' => !empty($mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_posts' => !empty($mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_edit_threads' => !empty($mybb->get_input('watch_edit_threads', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_edit_posts' => !empty($mybb->get_input('watch_edit_posts', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_delete_threads' => !empty($mybb->get_input('watch_delete_threads', MyBB::INPUT_INT)) ? 1 : 0,
+                        'watch_delete_posts' => !empty($mybb->get_input('watch_delete_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_usergroups' => $db->escape_string($watch_usergroups),
                         'watch_forums' => $db->escape_string($watch_forums)
@@ -501,9 +505,13 @@ final class Backend
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_icon_url, "", $form->generate_text_box('webhook_embeds_footer_icon_url', $row['webhook_embeds_footer_icon_url'], array('id' => 'webhook_embeds_footer_icon_url')), 'webhook_embeds_footer_icon_url', ['class' => 'webhook_embeds_footer_icon_url']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_char_limit." <em>*</em>", $lang->rt_discord_webhooks_webhooks_char_limit_desc, $form->generate_numeric_field('character_limit', $row['character_limit'], array('id' => 'character_limit', 'min' => 1, 'max' => 2000)), 'character_limit');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_bot_id." <em>*</em>", "", $form->generate_numeric_field('bot_id', $row['bot_id'], array('id' => 'bot_id')), 'bot_id');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", "", $form->generate_on_off_radio('watch_new_threads', $row['watch_new_threads'], true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", "", $form->generate_on_off_radio('watch_new_posts', $row['watch_new_posts'], true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", "", $form->generate_on_off_radio('watch_new_registrations', $row['watch_new_registrations'], true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_threads_desc, $form->generate_on_off_radio('watch_new_threads', $row['watch_new_threads'], true, array('id' => 'watch_new_threads_on'), array('id' => 'watch_new_threads_off')), 'watch_new_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_posts_desc, $form->generate_on_off_radio('watch_new_posts', $row['watch_new_posts'], true, array('id' => 'watch_new_posts_on'), array('id' => 'watch_new_posts_off')), 'watch_new_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_edit_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_edit_threads_desc, $form->generate_on_off_radio('watch_edit_threads', $row['watch_edit_threads'], true, array('id' => 'watch_edit_threads_on'), array('id' => 'watch_edit_threads_off')), 'watch_edit_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_edit_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_edit_posts_desc, $form->generate_on_off_radio('watch_edit_posts', $row['watch_edit_posts'], true, array('id' => 'watch_edit_posts_on'), array('id' => 'watch_edit_posts_off')), 'watch_edit_posts_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_delete_threads." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_delete_threads_desc, $form->generate_on_off_radio('watch_delete_threads', $row['watch_delete_threads'], true, array('id' => 'watch_delete_threads_on'), array('id' => 'watch_delete_threads_off')), 'watch_delete_threads');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_delete_posts." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_delete_posts_desc, $form->generate_on_off_radio('watch_delete_posts', $row['watch_delete_posts'], true, array('id' => 'watch_delete_posts_on'), array('id' => 'watch_delete_posts_off')), 'watch_delete_posts');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_new_registrations." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_new_registrations_desc, $form->generate_on_off_radio('watch_new_registrations', $row['watch_new_registrations'], true, array('id' => 'watch_new_registrations_on'), array('id' => 'watch_new_registrations_off')), 'watch_new_registrations');
 
                 $selected_values = [];
                 if (!empty($row['watch_usergroups']))
@@ -514,7 +522,7 @@ final class Backend
                         $selected_values[] = (int) $value;
                     }
                 }
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_usergroups." <em>*</em>", "", $form->generate_group_select('watch_usergroups[]', $selected_values, array('multiple' => true, 'size' => 5)), 'watch_usergroups');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_usergroups." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_usergroups_desc, $form->generate_group_select('watch_usergroups[]', $selected_values, array('multiple' => true, 'size' => 5)), 'watch_usergroups');
 
                 $selected_values = [];
                 if (!empty($row['watch_forums']) && $row['watch_forums'] !== '-1')
@@ -526,7 +534,7 @@ final class Backend
                     }
                 }
 
-                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_forums." <em>*</em>", "", $form->generate_forum_select('watch_forums[]', $selected_values, array('multiple' => true, 'size' => 5, 'main_option' => $lang->all_forums)), 'watch_forums');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_watch_forums." <em>*</em>", $lang->rt_discord_webhooks_webhooks_watch_forums_desc, $form->generate_forum_select('watch_forums[]', $selected_values, array('multiple' => true, 'size' => 5, 'main_option' => $lang->all_forums)), 'watch_forums');
                 $form_container->end();
                 $buttons[] = $form->generate_submit_button($lang->rt_discord_webhooks_webhooks_submit);
 

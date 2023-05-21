@@ -159,7 +159,7 @@ class DiscordHelper
                 $row['watch_usergroups'] = explode(',', $row['watch_usergroups']);
             }
 
-            if (!empty($row['watch_forums']))
+            if (isset($row['watch_forums']))
             {
                 if ($row['watch_forums'] !== '-1')
                 {
@@ -181,5 +181,50 @@ class DiscordHelper
         }
 
         return $data;
+    }
+
+    public static function logDiscordApiRequest(string $discord_message_id, string $discord_channel_id, string $webhook_id, int $tid = 0, int $pid = 0): void
+    {
+        global $db;
+
+        $data = [
+            'discord_message_id' => $discord_message_id,
+            'discord_channel_id' => $discord_channel_id,
+            'webhook_id' => $webhook_id,
+            'tid' => $tid,
+            'pid' => $pid,
+        ];
+
+        $db->insert_query(Core::get_plugin_info('prefix') . '_logs', $data);
+    }
+
+    public static function deleteDiscordMessageApiLog(int $pid, int $tid = 0): void
+    {
+        global $db;
+
+        if ($tid > 0)
+        {
+            $db->delete_query(Core::get_plugin_info('prefix'). '_logs', "tid = '{$db->escape_string($tid)}'");
+        }
+        else
+        {
+            $db->delete_query(Core::get_plugin_info('prefix'). '_logs', "pid = '{$db->escape_string($pid)}'");
+        }
+    }
+
+    public static function getDiscordMessage(int $pid, string $field = 'discord_message_id'): int
+    {
+        global $db;
+
+        $allowed = ['discord_message_id', 'webhook_id', 'discord_channel_id', 'tid', 'pid'];
+
+        if (!in_array($field, $allowed))
+        {
+            return 0;
+        }
+
+        $query = $db->simple_select(Core::get_plugin_info('prefix') . '_logs', $field, "pid = '{$db->escape_string($pid)}'");
+
+        return (int) $db->fetch_field($query, $field);
     }
 }

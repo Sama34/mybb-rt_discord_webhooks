@@ -21,7 +21,7 @@ class Core
         'description' => 'A simple integration of Discord Webhooks API',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.1',
+        'version' => '1.2',
         'compatibility' => '18*',
         'codename' => 'rt_discord_webhooks',
         'prefix' => 'rt_discord_webhooks',
@@ -114,10 +114,24 @@ class Core
                     bot_id INTEGER NOT NULL DEFAULT 0,
                     watch_new_threads SMALLINT NOT NULL DEFAULT 0,
                     watch_new_posts SMALLINT NOT NULL DEFAULT 0,
+                    watch_edit_threads SMALLINT NOT NULL DEFAULT 0,
+                    watch_edit_posts SMALLINT NOT NULL DEFAULT 0,
+                    watch_delete_threads SMALLINT NOT NULL DEFAULT 0,
+                    watch_delete_posts SMALLINT NOT NULL DEFAULT 0,
                     watch_new_registrations SMALLINT NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
+                );
+                PGSQL);
+                $db->write_query(<<<PGSQL
+                CREATE TABLE {$table_prefix}rt_discord_webhooks_logs (
+                    id SERIAL PRIMARY KEY,
+                    discord_message_id TEXT,
+                    discord_channel_id TEXT,
+                    webhook_id TEXT,
+                    tid INTEGER NOT NULL DEFAULT 0,
+                    pid INTEGER NOT NULL DEFAULT 0,
                 );
                 PGSQL);
                 break;
@@ -135,10 +149,24 @@ class Core
                     bot_id INTEGER NOT NULL DEFAULT 0,
                     watch_new_threads INTEGER NOT NULL DEFAULT 0,
                     watch_new_posts INTEGER NOT NULL DEFAULT 0,
+                    watch_edit_threads INTEGER NOT NULL DEFAULT 0,
+                    watch_edit_posts INTEGER NOT NULL DEFAULT 0,
+                    watch_delete_threads INTEGER NOT NULL DEFAULT 0,
+                    watch_delete_posts INTEGER NOT NULL DEFAULT 0,
                     watch_new_registrations INTEGER NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
+                );
+                SQLITE);
+                $db->write_query(<<<SQLITE
+                CREATE TABLE {$table_prefix}rt_discord_webhooks_logs (
+                    id INTEGER PRIMARY KEY,
+                    discord_message_id TEXT,
+                    discord_channel_id TEXT,
+                    webhook_id TEXT,
+                    tid INTEGER NOT NULL DEFAULT 0,
+                    pid INTEGER NOT NULL DEFAULT 0,
                 );
                 SQLITE);
                 break;
@@ -156,10 +184,25 @@ class Core
                     `bot_id` INT(11) NOT NULL DEFAULT 0,
                     `watch_new_threads` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_new_posts` TINYINT(4) NOT NULL DEFAULT 0,
+                    `watch_edit_threads` TINYINT(4) NOT NULL DEFAULT 0,
+                    `watch_edit_posts` TINYINT(4) NOT NULL DEFAULT 0,
+                    `watch_delete_threads` TINYINT(4) NOT NULL DEFAULT 0,
+                    `watch_delete_posts` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_new_registrations` TINYINT(4) NOT NULL DEFAULT 0,
                     `character_limit` INT(11) NOT NULL DEFAULT 500,
                     `watch_usergroups` text DEFAULT NULL,
                     `watch_forums` text DEFAULT NULL,
+                    PRIMARY KEY(`id`)
+                ) ENGINE = InnoDB;
+                SQL);
+                $db->write_query(<<<SQL
+                CREATE TABLE IF NOT EXISTS `{$table_prefix}rt_discord_webhooks_logs`(
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `discord_message_id` TEXT DEFAULT NULL,
+                    `discord_channel_id` TEXT DEFAULT NULL,
+                    `webhook_id` TEXT DEFAULT NULL,
+                    `tid` INT(11) NOT NULL DEFAULT 0,
+                    `pid` INT(11) NOT NULL DEFAULT 0,
                     PRIMARY KEY(`id`)
                 ) ENGINE = InnoDB;
                 SQL);
