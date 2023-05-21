@@ -21,7 +21,7 @@ class Core
         'description' => 'A simple integration of Discord Webhooks API',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.2',
+        'version' => '1.3',
         'compatibility' => '18*',
         'codename' => 'rt_discord_webhooks',
         'prefix' => 'rt_discord_webhooks',
@@ -120,6 +120,7 @@ class Core
                     watch_delete_posts SMALLINT NOT NULL DEFAULT 0,
                     watch_new_registrations SMALLINT NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
+                    allowed_mentions SMALLINT NOT NULL DEFAULT 0,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
@@ -155,6 +156,7 @@ class Core
                     watch_delete_posts INTEGER NOT NULL DEFAULT 0,
                     watch_new_registrations INTEGER NOT NULL DEFAULT 0,
                     character_limit INTEGER NOT NULL DEFAULT 500,
+                    allowed_mentions INTEGER NOT NULL DEFAULT 0,
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
@@ -190,6 +192,7 @@ class Core
                     `watch_delete_posts` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_new_registrations` TINYINT(4) NOT NULL DEFAULT 0,
                     `character_limit` INT(11) NOT NULL DEFAULT 500,
+                    `allowed_mentions` TINYINT(4) NOT NULL DEFAULT 0,
                     `watch_usergroups` text DEFAULT NULL,
                     `watch_forums` text DEFAULT NULL,
                     PRIMARY KEY(`id`)

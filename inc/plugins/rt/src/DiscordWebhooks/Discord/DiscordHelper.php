@@ -17,6 +17,13 @@ use rt\DiscordWebhooks\Core;
 
 class DiscordHelper
 {
+    /**
+     * Format BBCode to Discord Markdown
+     *
+     * @param string $text
+     * @param bool $embeds_enabled
+     * @return string
+     */
     public static function formatMessage(string $text, bool $embeds_enabled = false): string
     {
         $conversions = [
@@ -32,17 +39,40 @@ class DiscordHelper
 
         if ($embeds_enabled === true)
         {
+            // Remove img tags from embeds
             $conversions['/\[img\](.*?)\[\/img\]/is'] = '';
+            // Remove @here/@everyone from embeds
+            $conversions['/@(here|everyone)/is'] = '';
         }
         else
         {
             $conversions['/\[img\](.*?)\[\/img\]/is'] = '$1';
         }
 
+        // Remove other BBCodes which are not added for conversion
+        $conversions['/\[(.*?)=(.*?)\](.*?)\[\/(.*?)\]/is'] = '$3';
+
         // Perform the conversions using regular expressions
         return preg_replace(array_keys($conversions), array_values($conversions), $text);
     }
 
+    /**
+     * Get mentions list
+     *
+     * Add a nice list of @everyone and @here when enabled
+     *
+     * @param string $message
+     * @return string
+     */
+    public static function getMentions(string $message): string
+    {
+        $pattern = '/@(here|everyone)/si';
+        preg_match_all($pattern, $message, $matches);
+
+        $mentions = $matches[0] ?? [];
+
+        return implode(', ', $mentions);
+    }
     /**
      * Generate image link from [img] tags
      *

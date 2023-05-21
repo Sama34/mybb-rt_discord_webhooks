@@ -97,6 +97,19 @@ final class Frontend
                 if (!empty($h['webhook_embeds']))
                 {
                     $data['embeds'] = $embeds;
+
+                    // Check if mentions are allowed
+                    if ((int) $h['allowed_mentions'] === 1)
+                    {
+                        $data['allowed_mentions'] = [
+                            'parse' => ['everyone']
+                        ];
+                        $data['content'] = DiscordHelper::getMentions($new_thread['message']);
+                    }
+                    else
+                    {
+                        $data['content'] = '';
+                    }
                 }
                 else
                 {
@@ -196,6 +209,19 @@ final class Frontend
                         'embeds' => $embeds,
                     ];
 
+                    // Check if mentions are allowed
+                    if ((int) $h['allowed_mentions'] === 1)
+                    {
+                        $data['allowed_mentions'] = [
+                            'parse' => ['everyone']
+                        ];
+                        $data['content'] = DiscordHelper::getMentions($updatepost['message']);
+                    }
+                    else
+                    {
+                        $data['content'] = '';
+                    }
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $updatepost['pid']), 'PATCH', $data, $headers);
                 }
@@ -283,6 +309,19 @@ final class Frontend
                         'embeds' => $embeds,
                     ];
 
+                    // Check if mentions are allowed
+                    if ((int) $h['allowed_mentions'] === 1)
+                    {
+                        $data['allowed_mentions'] = [
+                            'parse' => ['everyone']
+                        ];
+                        $data['content'] = DiscordHelper::getMentions($post['message']);
+                    }
+                    else
+                    {
+                        $data['content'] = '';
+                    }
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $post['pid']), 'PATCH', $data, $headers);
                 }
@@ -368,6 +407,19 @@ final class Frontend
                 if (!empty($h['webhook_embeds']))
                 {
                     $data['embeds'] = $embeds;
+
+                    // Check if mentions are allowed
+                    if ((int) $h['allowed_mentions'] === 1)
+                    {
+                        $data['allowed_mentions'] = [
+                            'parse' => ['everyone']
+                        ];
+                        $data['content'] = DiscordHelper::getMentions($post['message']);
+                    }
+                    else
+                    {
+                        $data['content'] = '';
+                    }
                 }
                 else
                 {

@@ -271,6 +271,7 @@ final class Backend
                         'watch_delete_threads' => !empty($mybb->get_input('watch_delete_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_delete_posts' => !empty($mybb->get_input('watch_delete_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
+                        'allowed_mentions' => !empty($mybb->get_input('allowed_mentions', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_usergroups' => $db->escape_string($watch_usergroups),
                         'watch_forums' => $db->escape_string($watch_forums)
                     ];
@@ -314,6 +315,7 @@ final class Backend
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_url." <em>*</em>", "", $form->generate_text_box('webhook_url', $mybb->get_input('webhook_url'), array('id' => 'webhook_url')), 'webhook_url');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_type." <em>*</em>", $lang->rt_discord_webhooks_webhooks_type_desc, $form->generate_select_box('webhook_type', [1 => $lang->rt_discord_webhooks_webhooks_type_1, 2 => $lang->rt_discord_webhooks_webhooks_type_2, 3 => $lang->rt_discord_webhooks_webhooks_type_3], $mybb->get_input('webhook_type', MyBB::INPUT_INT), array('id' => 'webhook_type')), 'webhook_type');
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds." <em>*</em>", $lang->rt_discord_webhooks_webhook_embeds_desc, $form->generate_on_off_radio('webhook_embeds', $mybb->get_input('webhook_embeds', MyBB::INPUT_INT), true, array('id' => 'webhook_embeds_on', 'class' => 'webhook_embeds'), array('id' => 'webhook_embeds_off', 'class' => 'webhook_embeds')), 'webhook_embeds');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_allowed_mentions." <em>*</em>", $lang->rt_discord_webhooks_webhooks_allowed_mentions_desc, $form->generate_yes_no_radio('allowed_mentions', $mybb->get_input('allowed_mentions', MyBB::INPUT_INT), true, array('id' => 'allowed_mentions_yes'), array('id' => 'allowed_mentions_no')), 'allowed_mentions', ['class' => 'allowed_mentions']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_color, "", $form->generate_text_box('webhook_embeds_color', $mybb->get_input('webhook_embeds_color'), array('id' => 'webhook_embeds_color')), 'webhook_embeds_color', ['class' => 'webhook_embeds_color']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_thumbnail, "", $form->generate_text_box('webhook_embeds_thumbnail', $mybb->get_input('webhook_embeds_thumbnail'), array('id' => 'webhook_embeds_thumbnail')), 'webhook_embeds_thumbnail', ['class' => 'webhook_embeds_thumbnail']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_text, "", $form->generate_text_box('webhook_embeds_footer_text', $mybb->get_input('webhook_embeds_footer_text'), array('id' => 'webhook_embeds_footer_text')), 'webhook_embeds_footer_text', ['class' => 'webhook_embeds_footer_text']);
@@ -360,7 +362,7 @@ final class Backend
                 <script type="text/javascript">
                     $(function()
                     {
-                        new Peeker($(".webhook_embeds"), $(".webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color, .webhook_embeds_thumbnail"), 1, true);
+                        new Peeker($(".webhook_embeds"), $(".allowed_mentions, .webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color, .webhook_embeds_thumbnail"), 1, true);
                     });
                 </script>
                 PEEKERS;
@@ -442,6 +444,7 @@ final class Backend
                         'watch_delete_threads' => !empty($mybb->get_input('watch_delete_threads', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_delete_posts' => !empty($mybb->get_input('watch_delete_posts', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_new_registrations' => !empty($mybb->get_input('watch_new_registrations', MyBB::INPUT_INT)) ? 1 : 0,
+                        'allowed_mentions' => !empty($mybb->get_input('allowed_mentions', MyBB::INPUT_INT)) ? 1 : 0,
                         'watch_usergroups' => $db->escape_string($watch_usergroups),
                         'watch_forums' => $db->escape_string($watch_forums)
                     ];
@@ -499,6 +502,7 @@ final class Backend
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_url." <em>*</em>", "", $form->generate_text_box('webhook_url', $row['webhook_url'], array('id' => 'webhook_url')), 'webhook_url');
                 $form_container->output_row($lang->rt_discord_webhooks_webhooks_type." <em>*</em>", $lang->rt_discord_webhooks_webhooks_type_desc, $form->generate_select_box('webhook_type', [1 => $lang->rt_discord_webhooks_webhooks_type_1, 2 => $lang->rt_discord_webhooks_webhooks_type_2, 3 => $lang->rt_discord_webhooks_webhooks_type_3], $row['webhook_type'], array('id' => 'webhook_type')), 'webhook_type');
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds." <em>*</em>", $lang->rt_discord_webhooks_webhook_embeds_desc, $form->generate_on_off_radio('webhook_embeds', $row['webhook_embeds'], true, array('id' => 'webhook_embeds_on', 'class' => 'webhook_embeds'), array('id' => 'webhook_embeds_off', 'class' => 'webhook_embeds')), 'webhook_embeds');
+                $form_container->output_row($lang->rt_discord_webhooks_webhooks_allowed_mentions." <em>*</em>", $lang->rt_discord_webhooks_webhooks_allowed_mentions_desc, $form->generate_yes_no_radio('allowed_mentions', $row['allowed_mentions'], true, array('id' => 'allowed_mentions_yes'), array('id' => 'allowed_mentions_no')), 'allowed_mentions', ['class' => 'allowed_mentions']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_color, "", $form->generate_text_box('webhook_embeds_color', $row['webhook_embeds_color'], array('id' => 'webhook_embeds_color')), 'webhook_embeds_color', ['class' => 'webhook_embeds_color']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_thumbnail, "", $form->generate_text_box('webhook_embeds_thumbnail', $row['webhook_embeds_thumbnail'], array('id' => 'webhook_embeds_thumbnail')), 'webhook_embeds_thumbnail', ['class' => 'webhook_embeds_thumbnail']);
                 $form_container->output_row($lang->rt_discord_webhooks_webhook_embeds_footer_text, "", $form->generate_text_box('webhook_embeds_footer_text', $row['webhook_embeds_footer_text'], array('id' => 'webhook_embeds_footer_text')), 'webhook_embeds_footer_text', ['class' => 'webhook_embeds_footer_text']);
@@ -547,7 +551,7 @@ final class Backend
                 <script type="text/javascript">
                     $(function()
                     {
-                        new Peeker($(".webhook_embeds"), $(".webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color, .webhook_embeds_thumbnail"), 1, true);
+                        new Peeker($(".webhook_embeds"), $(".allowed_mentions, .webhook_embeds_footer_text, .webhook_embeds_footer_icon_url, .webhook_embeds_color, .webhook_embeds_thumbnail"), 1, true);
                     });
                 </script>
                 PEEKERS;
