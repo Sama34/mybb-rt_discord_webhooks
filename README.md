@@ -21,13 +21,16 @@ Is a simple but powerful integration of Discord Webhook API where you can custom
 * Plugin is written to be future-proof and with strict typecasting!
 * Add multiple Discord Webhooks with 1 click!
 * Webhooks are cached to boost performance!
+* Rich and simple Discord message layout
+* Option to post Discord message when new user registers
+* Option to post Discord message when new thread is post
+* Option to post Discord message when new post is posted
 * **NEW:** Option to automatically update Discord message when thread/post is edited on forum.
 * **NEW:** Option to automatically delete Discord message when thread/post is soft-deleted on forum.
 * Easy to configure, edit, and delete webhooks!
-* Rich and simple Discord messages
 * First [img] picture in post/thread is always taken as image in Rich Discord message
-* Customize Rich message color, footer, footer icon, timestamp, thumbnail image, per every hook
-* Webhooks can be enabled for new threads, posts, and newly registered users.
+* Customize rich message color, footer, footer icon, timestamp, thumbnail image, per every hook
+* Webhooks can be combined and used on multiple forums, usergroups in multiple channels!
 * Many more features
 
 ### ➕ Installation
