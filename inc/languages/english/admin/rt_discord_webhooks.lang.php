@@ -29,6 +29,7 @@ $l['rt_discord_webhooks_webhooks_bot_id_not_found'] = 'Can\'t find the user with
 $l['rt_discord_webhooks_webhook_embeds'] = 'Webhook Embeds';
 $l['rt_discord_webhooks_webhook_embeds_desc'] = 'Webhook embeds in Discord are a way to display rich and formatted content within a message sent by a webhook. Embeds allow you to include various elements such as titles, descriptions, fields, images, and more to create visually appealing and structured messages.';
 $l['rt_discord_webhooks_webhook_embeds_color'] = 'Webhook Embeds color (#Hex)';
+$l['rt_discord_webhooks_webhook_embeds_thumbnail'] = 'Webhook Embeds Thumbnail Image URL';
 $l['rt_discord_webhooks_webhook_embeds_footer_text'] = 'Webhook Embeds Footer Text';
 $l['rt_discord_webhooks_webhook_embeds_footer_icon_url'] = 'Webhook Embeds Footer Icon URL';
 $l['rt_discord_webhooks_webhook_embeds_color_invalid'] = 'Invalid color code for Webhook Embed. It must be a HEX color code (eg. #ff0000)';

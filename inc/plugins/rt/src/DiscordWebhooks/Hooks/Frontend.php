@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace rt\DiscordWebhooks\Hooks;
 
+use DateTimeImmutable;
 use Exception;
 use rt\DiscordWebhooks\Core;
 use rt\DiscordWebhooks\Discord\DiscordHelper;
@@ -65,6 +66,10 @@ final class Frontend
                         'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
                         'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $new_thread['message']), true),
                         'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
+                        'thumbnail' => [
+                            'url' => $h['webhook_embeds_thumbnail'],
+                        ],
                         'footer' => [
                             'text' => $h['webhook_embeds_footer_text'],
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
@@ -151,6 +156,10 @@ final class Frontend
                         'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
                         'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $post['message']), true),
                         'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
+                        'thumbnail' => [
+                            'url' => $h['webhook_embeds_thumbnail'],
+                        ],
                         'footer' => [
                             'text' => $h['webhook_embeds_footer_text'],
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
@@ -228,6 +237,10 @@ final class Frontend
                         'url' => $mybb->settings['bburl'] . '/' . get_profile_link($user_info['uid']),
                         'description' => DiscordHelper::formatMessage($lang->sprintf($lang->rt_discord_webhooks_new_registrations_desc, $user_info['username']), true),
                         'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
+                        'thumbnail' => [
+                            'url' => $h['webhook_embeds_thumbnail'],
+                        ],
                         'footer' => [
                             'text' => $h['webhook_embeds_footer_text'],
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
