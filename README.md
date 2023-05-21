@@ -18,13 +18,15 @@ Is a simple but powerful integration of Discord Webhook API where you can custom
 - PHP >= 7.4 (preferred 8.0 and up)
 
 ### 📃 Features
-- Plugin is written to be future-proof and with strict typecasting!
-- Add multiple Discord Webhooks with 1 click!
-- Hooks are cached to boost performance!
-- Easy to configure, edit, and delete webhooks!
-- Rich and simple Discord messages
-- Webhooks can be enabled for new threads, posts, and newly registered users.
-- Many more features
+* Plugin is written to be future-proof and with strict typecasting!
+* Add multiple Discord Webhooks with 1 click!
+* Webhooks are cached to boost performance!
+* Easy to configure, edit, and delete webhooks!
+* Rich and simple Discord messages
+* First [img] picture in post/thread is always taken as image in Rich Discord message
+* Customize Rich message color, footer, footer icon, timestamp, thumbnail image, per every hook
+* Webhooks can be enabled for new threads, posts, and newly registered users.
+* Many more features
 
 ### ➕ Installation
 1. Copy the directories from the plugin inside your root MyBB installation.
@@ -51,5 +53,5 @@ Open a new bug report by [clicking here](https://github.com/RevertIT/mybb-rt_dis
 ### 📷 Preview
 <img src="https://i.postimg.cc/d00QQ6FC/dc1.png" alt="Screenshot">
 <img src="https://i.postimg.cc/QMn8F7Ny/dc2.png" alt="Screenshot">
-<img src="https://i.postimg.cc/MTCzD8Q0/dc3.png" alt="Screenshot">
+<img src="https://i.postimg.cc/mD0gYFy5/dc5.png" alt="Screenshot">
 <img src="https://i.postimg.cc/8PV1fNDN/dc4.png" alt="Screenshot">
