@@ -27,6 +27,7 @@ Is a simple but powerful integration of Discord Webhook API where you can custom
 * Option to post Discord message when new post is posted
 * **NEW:** Option to automatically update Discord message when thread/post is edited on forum.
 * **NEW:** Option to automatically delete Discord message when thread/post is soft-deleted on forum.
+* Automatically detect posting user avatar and username in rich message
 * Easy to configure, edit, and delete webhooks!
 * First [img] picture in post/thread is always taken as image in Rich Discord message
 * Customize rich message color, footer, footer icon, timestamp, thumbnail image, per every hook
