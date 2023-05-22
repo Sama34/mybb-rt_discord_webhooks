@@ -24,7 +24,7 @@ Is a simple but powerful integration of Discord Webhook API where you can custom
 * Rich and simple Discord message layout
 * Option to enable **@everyone** and **@here** mentions per Webhook
 * Option to post Discord message when new user registers
-* Option to post Discord message when new thread is post
+* Option to post Discord message when new thread is posted
 * Option to post Discord message when new post is posted
 * **NEW:** Option to automatically update Discord message when thread/post is edited on forum.
 * **NEW:** Option to automatically delete Discord message when thread/post is soft-deleted on forum.
