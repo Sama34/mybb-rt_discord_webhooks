@@ -187,6 +187,75 @@ function load_plugin_version(): void
 }
 
 /**
+ * cURL ext loader
+ *
+ * @return void
+ */
+function load_curl_ext(): void
+{
+    global $mybb, $config;
+
+    if (!function_exists('curl_init'))
+    {
+        Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: orange">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/warning.png" alt="">
+			Missing cURL ext, please read the manual on how to install by <a href="https://www.php.net/manual/en/curl.setup.php" target="_blank">clicking here</a>.
+			</b>
+			DESC;
+    }
+    else
+    {
+        $cURL = curl_version()['version'];
+        if (version_compare($cURL, '7.19.4', '<'))
+        {
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: orange">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/warning.png" alt="">
+			cURL is outdated, you need at least (ver-7.19.4) to use this plugin.
+			</b>
+			DESC;
+        }
+        else
+        {
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: green">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/tick.png" alt="">
+			cURL (ver-{$cURL}) has passed the requirement check.
+			</b>
+			DESC;
+        }
+    }
+}
+
+
+/**
+ * Check if cURL extension is installed
+ *
+ * @return void
+ */
+function check_curl_ext(): void
+{
+    if (!function_exists('curl_init'))
+    {
+        flash_message("	Missing cURL ext, please read the manual on how to install by <a href=\"https://www.php.net/manual/en/curl.setup.php\" target=\"_blank\">clicking here</a>.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+    else
+    {
+        $cURL = curl_version()['version'];
+        if (version_compare($cURL, '7.19.4', '<'))
+        {
+            flash_message("cURL is outdated, you need at least (ver-7.19.4) to use this plugin.", "error");
+            admin_redirect("index.php?module=config-plugins");
+        }
+    }
+}
+
+/**
  * Fetch api request
  *
  * @param string $url

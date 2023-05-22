@@ -38,6 +38,7 @@ require_once MYBB_ROOT . 'inc/plugins/rt/vendor/autoload.php';
 // Health checks
 \rt\DiscordWebhooks\load_plugin_version();
 \rt\DiscordWebhooks\load_pluginlibrary();
+\rt\DiscordWebhooks\load_curl_ext();
 
 function rt_discord_webhooks_info(): array
 {
@@ -48,6 +49,7 @@ function rt_discord_webhooks_install(): void
 {
     \rt\DiscordWebhooks\check_php_version();
     \rt\DiscordWebhooks\check_pluginlibrary();
+    \rt\DiscordWebhooks\check_curl_ext();
 
     \rt\DiscordWebhooks\Core::add_database_modifications();
     \rt\DiscordWebhooks\Core::add_settings();
@@ -63,6 +65,7 @@ function rt_discord_webhooks_uninstall(): void
 {
     \rt\DiscordWebhooks\check_php_version();
     \rt\DiscordWebhooks\check_pluginlibrary();
+    \rt\DiscordWebhooks\check_curl_ext();
 
     \rt\DiscordWebhooks\Core::remove_database_modifications();
     \rt\DiscordWebhooks\Core::remove_settings();
@@ -73,6 +76,7 @@ function rt_discord_webhooks_activate(): void
 {
     \rt\DiscordWebhooks\check_php_version();
     \rt\DiscordWebhooks\check_pluginlibrary();
+    \rt\DiscordWebhooks\check_curl_ext();
 
     \rt\DiscordWebhooks\Core::add_settings();
     \rt\DiscordWebhooks\Core::set_cache();
@@ -82,4 +86,5 @@ function rt_discord_webhooks_deactivate(): void
 {
     \rt\DiscordWebhooks\check_php_version();
     \rt\DiscordWebhooks\check_pluginlibrary();
+    \rt\DiscordWebhooks\check_curl_ext();
 }
