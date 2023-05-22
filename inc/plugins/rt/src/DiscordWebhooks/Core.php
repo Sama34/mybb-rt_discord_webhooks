@@ -21,7 +21,7 @@ class Core
         'description' => 'A simple integration of Discord Webhooks API',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.3',
+        'version' => '1.4',
         'compatibility' => '18*',
         'codename' => 'rt_discord_webhooks',
         'prefix' => 'rt_discord_webhooks',
@@ -105,7 +105,7 @@ class Core
                 CREATE TABLE {$table_prefix}rt_discord_webhooks (
                     id SERIAL PRIMARY KEY,
                     webhook_url TEXT,
-                    webhook_type SMALLINT NOT NULL DEFAULT 1,
+                    webhook_name VARCHAR(255) NULL DEFAULT NULL
                     webhook_embeds SMALLINT NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -141,7 +141,7 @@ class Core
                 CREATE TABLE {$table_prefix}rt_discord_webhooks (
                     id INTEGER PRIMARY KEY,
                     webhook_url TEXT,
-                    webhook_type INTEGER NOT NULL DEFAULT 1,
+                    webhook_name VARCHAR(255) DEFAULT NULL,
                     webhook_embeds INTEGER NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -177,7 +177,7 @@ class Core
                 CREATE TABLE IF NOT EXISTS `{$table_prefix}rt_discord_webhooks`(
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `webhook_url` TEXT DEFAULT NULL,
-                    `webhook_type` TINYINT(4) NOT NULL DEFAULT 1,
+                    `webhook_name` VARCHAR(255) NULL DEFAULT NULL,
                     `webhook_embeds` TINYINT(4) NOT NULL DEFAULT 0,
                     `webhook_embeds_color` TEXT DEFAULT NULL,
                     `webhook_embeds_thumbnail` TEXT DEFAULT NULL,

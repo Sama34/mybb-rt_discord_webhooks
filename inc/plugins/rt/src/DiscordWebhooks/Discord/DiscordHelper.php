@@ -109,37 +109,6 @@ class DiscordHelper
             return 0;
         }
     }
-
-    /**
-     * Get Webhook type explanation
-     *
-     * @param int $type
-     * @return string
-     */
-    public static function getWebhookType(int $type): string
-    {
-        global $lang;
-
-        $lang->load(Core::get_plugin_info('prefix'));
-
-        $type_string = '';
-
-        switch ($type)
-        {
-            case 1:
-                $type_string = $lang->rt_discord_webhooks_webhooks_type_1_desc;
-                break;
-            case 2:
-                $type_string = $lang->rt_discord_webhooks_webhooks_type_2_desc;
-                break;
-            case 3:
-                $type_string = $lang->rt_discord_webhooks_webhooks_type_3_desc;
-                break;
-        }
-
-        return $type_string;
-    }
-
     /**
      * Check if hexColor is valid
      *

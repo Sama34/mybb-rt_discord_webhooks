@@ -16,23 +16,30 @@ namespace rt\DiscordWebhooks\Discord;
 use datacache;
 use DB_Base;
 use MyBB;
+use MyLanguage;
+use Page;
 use rt\DiscordWebhooks\Core;
 
 class AdminWebhooksConfig
 {
-    private DB_Base $db;
-    private MyBB $mybb;
-    private datacache $cache;
-    private string $table_prefix;
+    protected DB_Base $db;
+    protected MyBB $mybb;
+    protected MyLanguage $lang;
+    protected datacache $cache;
+    protected string $table_prefix;
+    protected string $prefix;
 
-    public function __construct()
+    public function __construct(DB_Base $db, MyBB $mybb, datacache $cache, MyLanguage $lang)
     {
-        global $db, $mybb, $cache;
-
         $this->mybb = $mybb;
         $this->db = $db;
         $this->cache = $cache;
+        $this->lang = $lang;
+        $this->prefix = Core::get_plugin_info('prefix');
         $this->table_prefix = TABLE_PREFIX;
+
+        // Load language
+        $this->lang->load(Core::get_plugin_info('prefix'));
     }
 
     /**
@@ -50,6 +57,48 @@ class AdminWebhooksConfig
 				SQL);
 
         return (int) $this->db->fetch_field($query, "hooks");
+    }
+
+    /**
+     * Get Edit Webhook layout
+     *
+     * @param array $sub_tabs
+     * @param Page $page
+     * @return void
+     */
+    public function getEditWebhook(array $sub_tabs, Page $page): void
+    {
+        $edit = new AdminWebhooksEdit($this->db, $this->mybb, $this->cache, $this->lang);
+
+        $edit->load($sub_tabs, $page);
+    }
+
+    /**
+     * Get Add Webhook layout
+     *
+     * @param array $sub_tabs
+     * @param Page $page
+     * @return void
+     */
+    public function getAddWebhook(array $sub_tabs, Page $page): void
+    {
+        $add = new AdminWebhooksAdd($this->db, $this->mybb, $this->cache, $this->lang);
+
+        $add->load($sub_tabs, $page);
+    }
+
+    /**
+     * Get View Webhook layout
+     *
+     * @param array $sub_tabs
+     * @param Page $page
+     * @return void
+     */
+    public function getViewWebhook(array $sub_tabs, Page $page): void
+    {
+        $view = new AdminWebhooksView($this->db, $this->mybb, $this->cache, $this->lang);
+
+        $view->load($sub_tabs, $page);
     }
 
     /**

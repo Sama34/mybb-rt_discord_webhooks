@@ -65,7 +65,7 @@ final class Frontend
                         'title' => $new_thread['subject'],
                         'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
                         'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $new_thread['message']), true),
-                        'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                         'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                         'thumbnail' => [
                             'url' => $h['webhook_embeds_thumbnail'],
@@ -187,7 +187,7 @@ final class Frontend
                             'title' => $watch_type === 'watch_edit_posts' ? $lang->rt_discord_webhooks_re . $thread['subject'] : $thread['subject'],
                             'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($updatepost['pid'], $thread['tid']) . "#pid{$updatepost['pid']}" : $mybb->settings['bburl'] . '/' . get_thread_link($thread['tid']),
                             'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $updatepost['message']), true),
-                            'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                            'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                             'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                             'thumbnail' => [
                                 'url' => $h['webhook_embeds_thumbnail'],
@@ -287,7 +287,7 @@ final class Frontend
                             'title' => $post['subject'],
                             'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($post['pid'], $thread['tid']) . "#pid{$post['pid']}" : $mybb->settings['bburl'] . '/' . get_thread_link($thread['tid']),
                             'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $post['message']), true),
-                            'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                            'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                             'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                             'thumbnail' => [
                                 'url' => $h['webhook_embeds_thumbnail'],
@@ -374,7 +374,7 @@ final class Frontend
                         'title' => $lang->rt_discord_webhooks_re . $thread_subject,
                         'url' => $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}",
                         'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $post['message']), true),
-                        'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                         'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                         'thumbnail' => [
                             'url' => $h['webhook_embeds_thumbnail'],
@@ -584,7 +584,7 @@ final class Frontend
                         'title' => $lang->sprintf($lang->rt_discord_webhooks_new_registrations_title, !empty($user_info['username']) ? $user_info['username'] : $lang->na),
                         'url' => $mybb->settings['bburl'] . '/' . get_profile_link($user_info['uid']),
                         'description' => DiscordHelper::formatMessage($lang->sprintf($lang->rt_discord_webhooks_new_registrations_desc, $user_info['username']), true),
-                        'color' => DiscordHelper::colorHex($h['webhook_embeds_color']),
+                        'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                         'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                         'thumbnail' => [
                             'url' => $h['webhook_embeds_thumbnail'],
