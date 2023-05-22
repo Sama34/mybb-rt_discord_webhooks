@@ -141,7 +141,7 @@ class DiscordHelper
      */
     public static function getCachedWebhooks(): array
     {
-        global $cache;
+        global $cache, $lang;
 
         $cached = $cache->read(Core::get_plugin_info('prefix') . '_cached_hooks');
 
@@ -173,7 +173,29 @@ class DiscordHelper
 
             if (!empty($row['bot_id']))
             {
-                $row['user'] = get_user($row['bot_id']);
+                $user = get_user($row['bot_id']);
+
+                if (!empty($user))
+                {
+                    $row['user'] = [
+                        'uid' => (int) $row['bot_id'],
+                        'username' => $user['username'],
+                        'avatar' => $user['avatar'],
+                        'usergroup' => (int) $user['usergroup'],
+                        'displaygroup' => (int) $user['displaygroup']
+                    ];
+                }
+                else
+                {
+                    // In case user has been deleted, we add mockup data
+                    $row['user'] = [
+                        'uid' => 0,
+                        'username' => $lang->na,
+                        'avatar' => '',
+                        'usergroup' => 0,
+                        'displaygroup' => 0
+                    ];
+                }
             }
 
             $data[] = $row;
