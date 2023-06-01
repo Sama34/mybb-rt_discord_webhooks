@@ -73,20 +73,23 @@ class DiscordHelper
 
         return implode(', ', $mentions);
     }
+
     /**
-     * Generate image link from [img] tags
+     * Generate image link from [img] or <img> tags
      *
      * @param string $message
+     * @param bool $allow_html
      * @return string
      */
-    public static function getImageLink(string $message): string
+    public static function getImageLink(string $message, bool $allow_html = false): string
     {
-        preg_match('/\[img](.*?)\[\/img]/i', $message, $matches);
+        preg_match('/\[img](.*)\[\/img]/i', $message, $bbcode);
+        $imageLink = $bbcode[1] ?? '';
 
-        $imageLink = '';
-        if (isset($matches[1]))
+        if ($allow_html === true)
         {
-            $imageLink = $matches[1];
+            preg_match('/src\s*=\s*(?:\"|\')(.*)(?:\"|\')/i', $message, $html);
+            $imageLink = empty($bbcode) && isset($html[1]) ? $html[1] : '';
         }
 
         return $imageLink;

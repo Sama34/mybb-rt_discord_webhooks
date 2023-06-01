@@ -28,7 +28,7 @@ final class Frontend
      */
     public function newthread_do_newthread_end(): void
     {
-        global $mybb, $lang, $new_thread, $tid, $thread_info;
+        global $mybb, $lang, $new_thread, $tid, $thread_info, $forum;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
@@ -75,7 +75,7 @@ final class Frontend
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
                         ],
                         'image' => [
-                            'url' => DiscordHelper::getImageLink($new_thread['message']),
+                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($new_thread['message'], true) : DiscordHelper::getImageLink($new_thread['message']),
                         ]
                     ],
                 ];
@@ -237,7 +237,7 @@ final class Frontend
      */
     public function editpost_do_editpost_end(): void
     {
-        global $mybb, $post, $lang;
+        global $mybb, $post, $lang, $forum;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
@@ -297,7 +297,7 @@ final class Frontend
                                 'icon_url' => $h['webhook_embeds_footer_icon_url']
                             ],
                             'image' => [
-                                'url' => DiscordHelper::getImageLink($post['message']),
+                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true) : DiscordHelper::getImageLink($post['message']),
                             ]
                         ],
                     ];
@@ -337,7 +337,7 @@ final class Frontend
      */
     public function newreply_do_newreply_end(): void
     {
-        global $mybb, $lang, $post, $tid, $pid, $thread_subject;
+        global $mybb, $lang, $post, $tid, $pid, $thread_subject, $forum;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
@@ -384,7 +384,7 @@ final class Frontend
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
                         ],
                         'image' => [
-                            'url' => DiscordHelper::getImageLink($post['message']),
+                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true) : DiscordHelper::getImageLink($post['message']),
                         ]
                     ],
                 ];
