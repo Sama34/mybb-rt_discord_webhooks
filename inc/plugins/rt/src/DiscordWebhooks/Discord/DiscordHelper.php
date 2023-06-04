@@ -26,6 +26,9 @@ class DiscordHelper
      */
     public static function formatMessage(string $text, bool $embeds_enabled = false): string
     {
+
+        $text = strip_tags($text);
+
         $conversions = [
             '/\[b\](.*?)\[\/b\]/is' => "**$1**",
             '/\[i\](.*?)\[\/i\]/is' => "*$1*",
@@ -84,12 +87,25 @@ class DiscordHelper
     public static function getImageLink(string $message, bool $allow_html = false): string
     {
         preg_match('/\[img](.*)\[\/img]/i', $message, $bbcode);
-        $imageLink = $bbcode[1] ?? '';
+        $bbcode_imagelink = $bbcode[1] ?? '';
 
         if ($allow_html === true)
         {
             preg_match('/src\s*=\s*(?:\"|\')(.*)(?:\"|\')/i', $message, $html);
-            $imageLink = empty($bbcode) && isset($html[1]) ? $html[1] : '';
+            $html_imagelink = $html[1] ?? '';
+        }
+
+        if (!empty($bbcode_imagelink))
+        {
+            $imageLink = $bbcode_imagelink;
+        }
+        elseif ($allow_html === true && !empty($html_imagelink))
+        {
+            $imageLink = $html_imagelink;
+        }
+        else
+        {
+            $imageLink = '';
         }
 
         return $imageLink;
