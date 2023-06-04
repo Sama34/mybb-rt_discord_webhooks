@@ -28,12 +28,15 @@ final class Frontend
      */
     public function newthread_do_newthread_end(): void
     {
-        global $mybb, $lang, $new_thread, $tid, $thread_info, $forum;
+        global $mybb, $lang, $new_thread, $tid, $thread_info, $forum, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_do_newthread_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
 
             foreach ($webhooks as $h)
@@ -116,6 +119,9 @@ final class Frontend
                     $data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_thread);
                 }
 
+                // Hook into RT Discord Webhooks end
+                $plugins->run_hooks('rt_discord_webhooks_do_newthread_end');
+
                 // Send Webhook request to the Discord
                 $api = \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '?wait=true', 'POST', $data, $headers);
                 $api = json_decode($api, true);
@@ -137,12 +143,15 @@ final class Frontend
      */
     public function xmlhttp_update_post(): void
     {
-        global $mybb, $updatepost, $lang;
+        global $mybb, $updatepost, $lang, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_xmlhttp_update_post_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
             $thread = get_thread(DiscordHelper::getDiscordMessage((int)$updatepost['pid'], 'tid'));
 
@@ -222,6 +231,9 @@ final class Frontend
                         $data['content'] = '';
                     }
 
+                    // Hook into RT Discord Webhooks end
+                    $plugins->run_hooks('rt_discord_webhooks_xmlhttp_update_post_end');
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $updatepost['pid']), 'PATCH', $data, $headers);
                 }
@@ -237,12 +249,15 @@ final class Frontend
      */
     public function editpost_do_editpost_end(): void
     {
-        global $mybb, $post, $lang, $forum;
+        global $mybb, $post, $lang, $forum, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_editpost_do_editpost_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
             $thread = get_thread(DiscordHelper::getDiscordMessage((int)$post['pid'], 'tid'));
 
@@ -322,6 +337,9 @@ final class Frontend
                         $data['content'] = '';
                     }
 
+                    // Hook into RT Discord Webhooks end
+                    $plugins->run_hooks('rt_discord_webhooks_editpost_do_editpost_end');
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $post['pid']), 'PATCH', $data, $headers);
                 }
@@ -337,12 +355,15 @@ final class Frontend
      */
     public function newreply_do_newreply_end(): void
     {
-        global $mybb, $lang, $post, $tid, $pid, $thread_subject, $forum;
+        global $mybb, $lang, $post, $tid, $pid, $thread_subject, $forum, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_newreply_do_newreply_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
 
             foreach ($webhooks as $h)
@@ -426,6 +447,9 @@ final class Frontend
                     $data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_post);
                 }
 
+                // Hook into RT Discord Webhooks end
+                $plugins->run_hooks('rt_discord_webhooks_newreply_do_newreply_end');
+
                 // Send Webhook request to the Discord
                 $api = \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '?wait=true', 'POST', $data, $headers);
                 $api = json_decode($api, true);
@@ -447,12 +471,15 @@ final class Frontend
      */
     public function class_moderation_soft_delete_posts(&$pids): void
     {
-        global $mybb, $lang;
+        global $mybb, $lang, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_class_moderation_soft_delete_posts_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
 
             foreach ($webhooks as $h)
@@ -483,6 +510,9 @@ final class Frontend
                         continue 2;
                     }
 
+                    // Hook into RT Discord Webhooks end
+                    $plugins->run_hooks('rt_discord_webhooks_class_moderation_soft_delete_posts_end');
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $p), 'DELETE', [], $headers);
 
@@ -502,12 +532,15 @@ final class Frontend
      */
     public function class_moderation_soft_delete_threads(&$tids): void
     {
-        global $mybb, $lang;
+        global $mybb, $lang, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_class_moderation_soft_delete_threads_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
 
             foreach ($webhooks as $h)
@@ -538,6 +571,9 @@ final class Frontend
                         continue 2;
                     }
 
+                    // Hook into RT Discord Webhooks end
+                    $plugins->run_hooks('rt_discord_webhooks_class_moderation_soft_delete_threads_end');
+
                     // Send Webhook request to the Discord
                     \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $thread['firstpost']), 'DELETE', [], $headers);
 
@@ -556,12 +592,15 @@ final class Frontend
      */
     public function member_do_register_end(): void
     {
-        global $mybb, $lang, $user_info;
+        global $mybb, $lang, $user_info, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_member_do_register_start');
+
             $lang->load(Core::get_plugin_info('prefix'));
 
             foreach ($webhooks as $h)
@@ -615,6 +654,9 @@ final class Frontend
                 {
                     $data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_registrations);
                 }
+
+                // Hook into RT Discord Webhooks end
+                $plugins->run_hooks('rt_discord_webhooks_member_do_register_end');
 
                 // Send Webhook request to the Discord
                 \rt\DiscordWebhooks\fetch_api($h['webhook_url'], 'POST', $data, $headers);
