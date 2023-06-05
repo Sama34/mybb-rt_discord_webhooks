@@ -278,7 +278,7 @@ class DiscordHelper
      *
      * @throws Exception
      */
-    public static function thirdPartyIntegration()
+    public static function thirdPartyIntegration(): void
     {
         global $mybb, $db, $cache, $plugins;
 
