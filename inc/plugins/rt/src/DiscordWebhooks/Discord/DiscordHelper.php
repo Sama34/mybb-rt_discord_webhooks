@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace rt\DiscordWebhooks\Discord;
 
+use DateTimeImmutable;
+use Exception;
 use rt\DiscordWebhooks\Core;
 
 class DiscordHelper
@@ -123,7 +125,7 @@ class DiscordHelper
         {
             return hexdec(ltrim($color, '#'));
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             return 0;
         }
@@ -266,5 +268,111 @@ class DiscordHelper
         $query = $db->simple_select(Core::get_plugin_info('prefix') . '_logs', $field, "pid = '{$db->escape_string($pid)}'");
 
         return (int) $db->fetch_field($query, $field);
+    }
+
+    /**
+     * Third-party plugin integration
+     *
+     * Hook start: rt_discord_webhooks_thirdparty_start
+     * Hook end: rt_discord_webhooks_thirdparty_end
+     *
+     * @throws Exception
+     */
+    public static function thirdPartyIntegration()
+    {
+        global $mybb, $db, $cache, $plugins;
+
+        $hook_data = [
+            'webhook_url' => '', // Webhook url from the Discord channel (Set into your plugin a text field where user will be able to set Webhook URL for your plugin)
+            'webhook_method' => 'POST', // Webhook method when sending request to API
+            'bot' => [
+                'username' => '', // Bot username
+                'avatar_url' => '', // Bot image url
+            ],
+            'author' => [
+                'name' => '', // Embeds author name
+                'url' => '', // Embeds author profile url
+                'icon_url' => '' // Embeds author avatar url
+            ],
+            'title' => '', // Embeds title of the content
+            'url' => '', // Embeds url for the title
+            'description' => '', // Embeds description
+            'char_limit' => 2000, // Embeds max character to be parsed
+            'embeds_enabled' => true, // Enable / Disable embeds
+            'allow_mentions' => true, // Allow mentions in embeds (@here, @all)
+            'color' => '', // HEX embeds color border (eg. #ff0000)
+            'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'), // Timestamp of the post
+            'thumbnail' => [
+                'url' => '', // Embeds thumbnail image url
+            ],
+            'footer' => [
+                'text' => '', // Embeds footer text
+                'icon_url' => '' // Embeds small footer image url
+            ],
+            'image' => [
+                'url' => '', // Embeds image url
+            ]
+        ];
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // Hook into RT Discord Webhooks start
+        $plugins->run_hooks('rt_discord_webhooks_thirdparty_start');
+
+        $embeds = [
+            [
+                'author' => [
+                    'name' => $hook_data['author']['name'],
+                    'url' => $hook_data['author']['url'],
+                    'icon_url' => $hook_data['author']['icon_url'],
+                ],
+                'title' => $hook_data['title'],
+                'url' => $hook_data['url'],
+                'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $hook_data['char_limit'], $hook_data['description']), (bool) $hook_data['embeds_enabled']),
+                'color' => DiscordHelper::colorHex((string) $hook_data['color']),
+                'timestamp' => $hook_data['timestamp'],
+                'thumbnail' => [
+                    'url' => $hook_data['thumbnail']['url'],
+                ],
+                'footer' => [
+                    'text' => $hook_data['footer']['text'],
+                    'icon_url' => $hook_data['footer']['icon_url']
+                ],
+                'image' => [
+                    'url' => DiscordHelper::getImageLink($hook_data['image']['url']),
+                ]
+            ],
+        ];
+
+        $data = [
+            'username' => $hook_data['bot']['username'],
+            'avatar_url' => $hook_data['bot']['avatar_url'],
+            'tts' => false,
+            'embeds' => $embeds,
+        ];
+
+        // Check if mentions are allowed
+        if ((bool) $hook_data['allow_mentions'] === true)
+        {
+            $data['allowed_mentions'] = [
+                'parse' => ['everyone']
+            ];
+            $data['content'] = DiscordHelper::getMentions($hook_data['description']);
+        }
+        else
+        {
+            $data['content'] = '';
+        }
+
+        // Hook into RT Discord Webhooks end
+        $plugins->run_hooks('rt_discord_webhooks_thirdparty_end');
+
+        if (!empty($hook_data['webhook_url']))
+        {
+            // Send Webhook request to the Discord
+            \rt\DiscordWebhooks\fetch_api($hook_data['webhook_url'], $hook_data['webhook_method'], $data, $headers);
+        }
     }
 }

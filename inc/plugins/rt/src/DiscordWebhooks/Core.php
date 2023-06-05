@@ -81,6 +81,12 @@ class Core
                     "optionscode" => "yesno",
                     "value" => 1
                 ],
+                "thirdparty" => [
+                    "title" => "Enable Discord Webhooks for Third-party plugins?",
+                    "description" => "This will let plugins to hook into RT Discord Webhooks and send their custom hooks",
+                    "optionscode" => "yesno",
+                    "value" => 1
+                ],
             ],
         );
     }

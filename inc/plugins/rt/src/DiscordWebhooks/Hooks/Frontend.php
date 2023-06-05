@@ -20,6 +20,28 @@ use rt\DiscordWebhooks\Discord\DiscordHelper;
 
 final class Frontend
 {
+
+    /**
+     * Hook: global_start
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function global_start(): void
+    {
+        // Permissions first
+        if (
+           isset($mybb->settings['rt_webhooks_enabled'], $mybb->settings['rt_discord_webhooks_thirdparty']) &&
+           // Check if webhook embeds are enabled
+           (int) $mybb->settings['rt_webhooks_enabled'] === 1 &&
+           // Check if webhook is for third party is enabled
+           (int) $mybb->settings['rt_discord_webhooks_thirdparty'] === 1
+        )
+        {
+            DiscordHelper::thirdPartyIntegration();
+        }
+    }
+
     /**
      * Hook: newthread_do_newthread_end
      *
