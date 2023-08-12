@@ -47,7 +47,7 @@ class DiscordHelper
             // Remove img tags from embeds
             $conversions['/\[img\](.*?)\[\/img\]/is'] = '';
             // Remove @here/@everyone from embeds
-            $conversions['/@(here|everyone)/is'] = '';
+            $conversions['/(<@&\d+>|<@!&\d+>|@here|@everyone)/si'] = '';
         }
         else
         {
@@ -64,14 +64,14 @@ class DiscordHelper
     /**
      * Get mentions list
      *
-     * Add a nice list of @everyone and @here when enabled
+     * Add a nice list of Role ID, user mentions with roles, @here, and @everyone when enabled
      *
      * @param string $message
      * @return string
      */
     public static function getMentions(string $message): string
     {
-        $pattern = '/@(here|everyone)/si';
+        $pattern = '/(<@&\d+>|<@!&\d+>|@here|@everyone)/si';
         preg_match_all($pattern, $message, $matches);
 
         $mentions = $matches[0] ?? [];
