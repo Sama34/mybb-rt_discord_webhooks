@@ -46,8 +46,8 @@ class DiscordHelper
         {
             // Remove img tags from embeds
             $conversions['/\[img\](.*?)\[\/img\]/is'] = '';
-            // Remove @here/@everyone from embeds
-            $conversions['/(<@&\d+>|<@!&\d+>|@here|@everyone)/si'] = '';
+            // Remove Role ID, User ID, Channel ID, @here, and @everyone from embeds
+            $conversions['/(<@&\d+>|<@\d+>|<#\d+>|@here|@everyone)/si'] = '';
         }
         else
         {
@@ -64,19 +64,31 @@ class DiscordHelper
     /**
      * Get mentions list
      *
-     * Add a nice list of Role ID, user mentions with roles, @here, and @everyone when enabled
+     * Add a nice list of Role ID, User ID, Channel ID, @here, and @everyone when enabled
      *
      * @param string $message
      * @return string
      */
     public static function getMentions(string $message): string
     {
-        $pattern = '/(<@&\d+>|<@!&\d+>|@here|@everyone)/si';
+        $pattern = '/(<@&\d+>|<@\d+>|<#\d+>|@here|@everyone)/si';
         preg_match_all($pattern, $message, $matches);
 
         $mentions = $matches[0] ?? [];
 
         return implode(', ', $mentions);
+    }
+
+    /**
+     * Formatting allowed mentions
+     *
+     * @return array[]
+     */
+    public static function formatAllowedMentions(): array
+    {
+        return [
+            'parse' => ['everyone', 'users', 'roles']
+        ];
     }
 
     /**
@@ -356,9 +368,7 @@ class DiscordHelper
         // Check if mentions are allowed
         if ((bool) $hook_data['allow_mentions'] === true)
         {
-            $data['allowed_mentions'] = [
-                'parse' => ['everyone']
-            ];
+            $data['allowed_mentions'] = self::formatAllowedMentions();
             $data['content'] = DiscordHelper::getMentions($hook_data['description']);
         }
         else

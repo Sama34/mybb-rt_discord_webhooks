@@ -126,9 +126,7 @@ final class Frontend
                     // Check if mentions are allowed
                     if ((int) $h['allowed_mentions'] === 1)
                     {
-                        $data['allowed_mentions'] = [
-                            'parse' => ['everyone']
-                        ];
+                        $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
                         $data['content'] = DiscordHelper::getMentions($new_thread['message']);
                     }
                     else
@@ -243,9 +241,7 @@ final class Frontend
                     // Check if mentions are allowed
                     if ((int) $h['allowed_mentions'] === 1)
                     {
-                        $data['allowed_mentions'] = [
-                            'parse' => ['everyone']
-                        ];
+                        $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
                         $data['content'] = DiscordHelper::getMentions($updatepost['message']);
                     }
                     else
@@ -349,9 +345,7 @@ final class Frontend
                     // Check if mentions are allowed
                     if ((int) $h['allowed_mentions'] === 1)
                     {
-                        $data['allowed_mentions'] = [
-                            'parse' => ['everyone']
-                        ];
+                        $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
                         $data['content'] = DiscordHelper::getMentions($post['message']);
                     }
                     else
@@ -454,9 +448,7 @@ final class Frontend
                     // Check if mentions are allowed
                     if ((int) $h['allowed_mentions'] === 1)
                     {
-                        $data['allowed_mentions'] = [
-                            'parse' => ['everyone']
-                        ];
+                        $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
                         $data['content'] = DiscordHelper::getMentions($post['message']);
                     }
                     else
