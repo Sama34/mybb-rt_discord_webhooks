@@ -21,7 +21,7 @@ class Core
         'description' => 'A simple integration of Discord Webhooks API',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.5',
+        'version' => '1.6',
         'compatibility' => '18*',
         'codename' => 'rt_discord_webhooks',
         'prefix' => 'rt_discord_webhooks',
