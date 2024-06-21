@@ -19,6 +19,7 @@ use rt\DiscordWebhooks\Core;
 
 class DiscordHelper
 {
+
     /**
      * Format BBCode to Discord Markdown
      *
@@ -28,7 +29,6 @@ class DiscordHelper
      */
     public static function formatMessage(string $text, bool $embeds_enabled = false): string
     {
-
         $text = strip_tags($text);
 
         $conversions = [
@@ -39,7 +39,39 @@ class DiscordHelper
             '/\[url=(.*?)\](.*?)\[\/url\]/is' => "[$2]($1)",
             '/\[code\](.*?)\[\/code\]/is' => "```$1```",
             '/\[php\](.*?)\[\/php\]/is' => "```php\n$1```",
-            // Add more conversion rules as needed
+            // Conversion for unordered lists [list][*]...[*]...[/list]
+            '/\[list\](.*?)\[\/list\]/is' => function($matches)
+            {
+                $items = preg_split('/\[\*]/', $matches[1], -1, PREG_SPLIT_NO_EMPTY);
+                $markdown = '';
+                foreach ($items as $item)
+                {
+                    $trimmedItem = trim($item);
+                    if (!empty($trimmedItem))
+                    {
+                        $markdown .= "- " . $trimmedItem . "\n";
+                    }
+                }
+                return trim($markdown);
+            },
+            // Conversion for ordered lists [list=1][*]...[*]...[/list]
+            '/\[list=1\](.*?)\[\/list\]/is' => function($matches)
+            {
+                $items = preg_split('/\[\*]/', $matches[1], -1, PREG_SPLIT_NO_EMPTY);
+                $markdown = '';
+                $index = 1;
+                foreach ($items as $item)
+                {
+                    $trimmedItem = trim($item);
+                    if (!empty($trimmedItem))
+                    {
+                        $markdown .= $index . ". " . $trimmedItem . "\n";
+                        $index++;
+                    }
+                }
+                return trim($markdown);
+            },
+            // Additional rules can be added here
         ];
 
         if ($embeds_enabled === true)
@@ -58,7 +90,19 @@ class DiscordHelper
         $conversions['/\[(.*?)=(.*?)\](.*?)\[\/(.*?)\]/is'] = '$3';
 
         // Perform the conversions using regular expressions
-        return preg_replace(array_keys($conversions), array_values($conversions), $text);
+        foreach ($conversions as $pattern => $replacement)
+        {
+            if (is_callable($replacement))
+            {
+                $text = preg_replace_callback($pattern, $replacement, $text);
+            }
+            else
+            {
+                $text = preg_replace($pattern, $replacement, $text);
+            }
+        }
+
+        return $text;
     }
 
     /**
