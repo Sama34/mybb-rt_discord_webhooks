@@ -328,3 +328,16 @@ function get_settings_values(string $name): array
         'strlen'
     );
 }
+
+/**
+ * Checks if a user is a member of a particular group
+ * A wrapper for the core is_member() function
+ *
+ * @param array|int|string A selection of groups (as array or comma seperated) to check or -1 for any group
+ * @param bool|array|int False assumes the current user. Otherwise an user array or an id can be passed
+ * @return array Array of groups specified in the first param to which the user belongs
+ */
+function is_member($groups, $user = false)
+{
+    return \is_member($groups, $user);
+}

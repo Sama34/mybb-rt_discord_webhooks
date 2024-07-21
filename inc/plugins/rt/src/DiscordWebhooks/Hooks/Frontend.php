@@ -70,7 +70,7 @@ final class Frontend
                     // Check if webhook is watching the current forum
                     (!isset($h['watch_forums']) || !in_array((int) $new_thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                     // Check if the user is part of the allowed usergroups to post
-                    (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                 )
                 {
                     continue;
@@ -196,7 +196,7 @@ final class Frontend
                         // Check if webhook is watching the current forum
                         (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                         // Check if the user is part of the allowed usergroups to edit threads/posts
-                        (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                        (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                     )
                     {
                         continue;
@@ -300,7 +300,7 @@ final class Frontend
                         // Check if webhook is watching the current forum
                         (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                         // Check if the user is part of the allowed usergroups to edit threads/posts
-                        (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                        (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                     )
                     {
                         continue;
@@ -391,7 +391,7 @@ final class Frontend
                     // Check if webhook is watching the current forum
                     (!isset($h['watch_forums']) || !in_array((int) $post['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                     // Check if the user is part of the allowed usergroups to post reply
-                    (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                 )
                 {
                     continue;
@@ -503,7 +503,7 @@ final class Frontend
                     // Check if webhook is for delete posts
                     (!isset($h['watch_delete_posts']) || (int) $h['watch_delete_posts'] !== 1) ||
                     // Check if the user is part of the allowed usergroups to use delete posts
-                    (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                 )
                 {
                     continue;
@@ -564,7 +564,7 @@ final class Frontend
                     // Check if webhook is for delete threads
                     (!isset($h['watch_delete_threads']) || (int) $h['watch_delete_threads'] !== 1) ||
                     // Check if the user is part of the allowed usergroups to use delete threads
-                    (!isset($h['watch_usergroups']) || !in_array((int) $mybb->user['usergroup'], $h['watch_usergroups']))
+                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
                 )
                 {
                     continue;
