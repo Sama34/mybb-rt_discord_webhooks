@@ -220,6 +220,8 @@ final class Frontend
 
             $forum = get_forum($fid);
 
+            $message = $post['message'] ?? get_post($pid)['message'];
+
             // If the poster is unregistered and hasn't set a username, call them Guest
             if(!$uid && !$post['username'])
             {
@@ -270,7 +272,7 @@ final class Frontend
                             ],
                             'title' => $post['subject'],
                             'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}" : $mybb->settings['bburl'] . '/' . get_thread_link($tid),
-                            'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $post['message']), true),
+                            'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $message), true),
                             'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                             'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                             'thumbnail' => [
@@ -281,7 +283,7 @@ final class Frontend
                                 'icon_url' => $h['webhook_embeds_footer_icon_url']
                             ],
                             'image' => [
-                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true, $pid) : DiscordHelper::getImageLink($post['message'], false, $pid),
+                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($message, true, $pid) : DiscordHelper::getImageLink($message, false, $pid),
                             ]
                         ],
                     ];
@@ -297,7 +299,7 @@ final class Frontend
                     if ((int) $h['allowed_mentions'] === 1)
                     {
                         $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
-                        $data['content'] = DiscordHelper::getMentions($post['message']);
+                        $data['content'] = DiscordHelper::getMentions($message);
                     }
                     else
                     {
