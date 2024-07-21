@@ -43,21 +43,44 @@ final class Frontend
     }
 
     /**
-     * Hook: newthread_do_newthread_end
+     * Hook: datahandler_post_insert_thread_end
      *
      * @return void
      * @throws Exception
      */
-    public function newthread_do_newthread_end(): void
+
+    function datahandler_post_insert_thread_end(\PostDataHandler $post_data_handler):\PostDataHandler
     {
-        global $mybb, $lang, $new_thread, $tid, $thread_info, $forum, $plugins;
+        global $mybb, $lang, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            $hook_arguments = [
+                'post_data_handler' => &$post_data_handler
+            ];
+
+            $thread = &$this->data;
+
+            $tid = (int)$post_data_handler->tid;
+
+            $pid = (int)$post_data_handler->pid;
+
+            $uid = (int)$thread['uid'];
+
+            $user = get_user($uid);
+
+            $username = $thread['username'];
+
+            // If the poster is unregistered and hasn't set a username, call them Guest
+            if(!$thread['uid'] && !$thread['username'])
+            {
+                $username = htmlspecialchars_uni($lang->guest);
+            }
+
             // Hook into RT Discord Webhooks start
-            $plugins->run_hooks('rt_discord_webhooks_do_newthread_start');
+            $plugins->run_hooks('rt_discord_webhooks_datahandler_insert_thread_start', $hook_arguments);
 
             $lang->load(Core::get_plugin_info('prefix'));
 
@@ -68,9 +91,9 @@ final class Frontend
                     // Check if webhook is for new threads
                     (!isset($h['watch_new_threads']) || (int) $h['watch_new_threads'] !== 1) ||
                     // Check if webhook is watching the current forum
-                    (!isset($h['watch_forums']) || !in_array((int) $new_thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
+                    (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                     // Check if the user is part of the allowed usergroups to post
-                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
+                    (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $user))
                 )
                 {
                     continue;
@@ -83,13 +106,13 @@ final class Frontend
                 $embeds = [
                     [
                         'author' => [
-                            'name' => !empty($mybb->user['uid']) ?  $mybb->user['username'] : $lang->na,
-                            'url' => $mybb->settings['bburl'] . '/' . get_profile_link($mybb->user['uid']),
-                            'icon_url' => !empty($mybb->user['avatar']) ? $mybb->user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
+                            'name' => $username,
+                            'url' => $mybb->settings['bburl'] . '/' . get_profile_link($uid),
+                            'icon_url' => !empty($user['avatar']) ? $user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
                         ],
-                        'title' => $new_thread['subject'],
+                        'title' => $thread['subject'],
                         'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
-                        'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $new_thread['message']), true),
+                        'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $thread['message']), true),
                         'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                         'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
                         'thumbnail' => [
@@ -100,7 +123,7 @@ final class Frontend
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
                         ],
                         'image' => [
-                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($new_thread['message'], true) : DiscordHelper::getImageLink($new_thread['message']),
+                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($thread['message'], true) : DiscordHelper::getImageLink($thread['message']),
                         ]
                     ],
                 ];
@@ -112,11 +135,11 @@ final class Frontend
                 ];
 
                 $thread_link = $mybb->settings['bburl'] . '/' . get_thread_link($tid);
-                $user_link = $mybb->settings['bburl'] . '/' . get_profile_link($new_thread['uid']);
-                $forum_link = $mybb->settings['bburl'] . '/' . get_forum_link($new_thread['fid']);
-                $forum_name = isset(get_forum($new_thread['fid'])['name']) ? htmlspecialchars_uni(get_forum($new_thread['fid'])['name']) : $lang->na;
+                $user_link = $mybb->settings['bburl'] . '/' . get_profile_link($thread['uid']);
+                $forum_link = $mybb->settings['bburl'] . '/' . get_forum_link($thread['fid']);
+                $forum_name = isset(get_forum($thread['fid'])['name']) ? htmlspecialchars_uni(get_forum($thread['fid'])['name']) : $lang->na;
 
-                $lang->rt_discord_webhooks_new_thread = $lang->sprintf($lang->rt_discord_webhooks_new_thread, $thread_link, $new_thread['subject'], $user_link, $new_thread['username'], $forum_link, $forum_name);
+                $lang->rt_discord_webhooks_new_thread = $lang->sprintf($lang->rt_discord_webhooks_new_thread, $thread_link, $thread['subject'], $user_link, $username, $forum_link, $forum_name);
 
                 // Check if we are using embeds
                 if (!empty($h['webhook_embeds']))
@@ -127,7 +150,7 @@ final class Frontend
                     if ((int) $h['allowed_mentions'] === 1)
                     {
                         $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
-                        $data['content'] = DiscordHelper::getMentions($new_thread['message']);
+                        $data['content'] = DiscordHelper::getMentions($thread['message']);
                     }
                     else
                     {
@@ -140,7 +163,7 @@ final class Frontend
                 }
 
                 // Hook into RT Discord Webhooks end
-                $plugins->run_hooks('rt_discord_webhooks_do_newthread_end');
+                $plugins->run_hooks('rt_discord_webhooks_datahandler_insert_thread_end', $hook_arguments);
 
                 // Send Webhook request to the Discord
                 $api = \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '?wait=true', 'POST', $data, $headers);
@@ -148,11 +171,12 @@ final class Frontend
 
                 if (isset($api['id']))
                 {
-                    DiscordHelper::logDiscordApiRequest($api['id'], $api['channel_id'], $api['webhook_id'], $tid, $thread_info['pid']);
+                    DiscordHelper::logDiscordApiRequest($api['id'], $api['channel_id'], $api['webhook_id'], $tid, $pid);
                 }
             }
         }
 
+        return $post_data_handler;
     }
 
     /**
@@ -371,7 +395,7 @@ final class Frontend
      */
     public function newreply_do_newreply_end(): void
     {
-        global $mybb, $lang, $post, $tid, $pid, $thread_subject, $forum, $plugins;
+        global $mybb, $lang, $post, $postinfo, $tid, $pid, $thread_subject, $forum, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
