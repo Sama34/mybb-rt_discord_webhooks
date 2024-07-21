@@ -81,7 +81,7 @@ final class Frontend
             $forum = get_forum($fid);
 
             // If the poster is unregistered and hasn't set a username, call them Guest
-            if(!$thread['uid'] && !$thread['username'])
+            if(!$uid && !$thread['username'])
             {
                 $username = htmlspecialchars_uni($lang->guest);
             }
@@ -184,135 +184,58 @@ final class Frontend
     }
 
     /**
-     * Hook: xmlhttp_update_post
+     * Hook: datahandler_post_update_end
      *
      * @return void
      * @throws Exception
      */
-    public function xmlhttp_update_post(): void
+    public function datahandler_post_update_end(\PostDataHandler $post_data_handler): \PostDataHandler
     {
-        global $mybb, $updatepost, $lang, $plugins;
+        global $mybb, $lang, $plugins;
 
         $webhooks = DiscordHelper::getCachedWebhooks();
 
         if (!empty($webhooks))
         {
+            $hook_arguments = [
+                'post_data_handler' => &$post_data_handler
+            ];
+
             // Hook into RT Discord Webhooks start
-            $plugins->run_hooks('rt_discord_webhooks_xmlhttp_update_post_start');
+            $plugins->run_hooks('rt_discord_webhooks_datahandler_update_post_start', $hook_arguments);
 
-            $lang->load(Core::get_plugin_info('prefix'));
-            $thread = get_thread(DiscordHelper::getDiscordMessage((int)$updatepost['pid'], 'tid'));
+            $post = &$post_data_handler->data;
 
-            // Check if thread exists
-            if (!empty($thread))
+            $tid = (int) $post['tid'];
+
+            $pid = (int) $post_data_handler->pid;
+
+            $uid = (int) $post['uid'];
+
+            $user = get_user($uid);
+
+            $username = $post['username'];
+
+            $fid = (int) $post['fid'];
+
+            $forum = get_forum($fid);
+
+            // If the poster is unregistered and hasn't set a username, call them Guest
+            if(!$uid && !$post['username'])
             {
-                // Generate watch type
-                $watch_type = 'watch_edit_posts';
-                if ((int) $thread['firstpost'] === (int) $updatepost['pid'])
-                {
-                    $watch_type = 'watch_edit_threads';
-                }
-
-                foreach ($webhooks as $h)
-                {
-                    // Permissions first
-                    if (
-                        // Check if webhook embeds are enabled
-                        empty($h['webhook_embeds']) ||
-                        // Check if webhook is for edit threads/posts
-                        (!isset($h[$watch_type]) || (int) $h[$watch_type] !== 1) ||
-                        // Check if webhook is watching the current forum
-                        (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
-                        // Check if the user is part of the allowed usergroups to edit threads/posts
-                        (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
-                    )
-                    {
-                        continue;
-                    }
-
-                    $headers = [
-                        'Content-Type: application/json',
-                    ];
-
-                    $embeds = [
-                        [
-                            'author' => [
-                                'name' => !empty($mybb->user['uid']) ?  $mybb->user['username'] : $lang->na,
-                                'url' => $mybb->settings['bburl'] . '/' . get_profile_link($mybb->user['uid']),
-                                'icon_url' => !empty($mybb->user['avatar']) ? $mybb->user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
-                            ],
-                            'title' => $watch_type === 'watch_edit_posts' ? $lang->rt_discord_webhooks_re . $thread['subject'] : $thread['subject'],
-                            'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($updatepost['pid'], $thread['tid']) . "#pid{$updatepost['pid']}" : $mybb->settings['bburl'] . '/' . get_thread_link($thread['tid']),
-                            'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $updatepost['message']), true),
-                            'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
-                            'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
-                            'thumbnail' => [
-                                'url' => $h['webhook_embeds_thumbnail'],
-                            ],
-                            'footer' => [
-                                'text' => $h['webhook_embeds_footer_text'],
-                                'icon_url' => $h['webhook_embeds_footer_icon_url']
-                            ],
-                            'image' => [
-                                'url' => DiscordHelper::getImageLink($updatepost['message'], false, (int) $updatepost['pid']),
-                            ]
-                        ],
-                    ];
-
-                    $data = [
-                        'username' => !empty($h['user']['username']) ?  $h['user']['username'] : $lang->na,
-                        'avatar_url' => !empty($h['user']['avatar']) ? $h['user']['avatar'] : '',
-                        'tts' => false,
-                        'embeds' => $embeds,
-                    ];
-
-                    // Check if mentions are allowed
-                    if ((int) $h['allowed_mentions'] === 1)
-                    {
-                        $data['allowed_mentions'] = DiscordHelper::formatAllowedMentions();
-                        $data['content'] = DiscordHelper::getMentions($updatepost['message']);
-                    }
-                    else
-                    {
-                        $data['content'] = '';
-                    }
-
-                    // Hook into RT Discord Webhooks end
-                    $plugins->run_hooks('rt_discord_webhooks_xmlhttp_update_post_end');
-
-                    // Send Webhook request to the Discord
-                    \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $updatepost['pid']), 'PATCH', $data, $headers);
-                }
+                $username = htmlspecialchars_uni($lang->guest);
             }
-        }
-    }
-
-    /**
-     * Hook: editpost_do_editpost_end
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function editpost_do_editpost_end(): void
-    {
-        global $mybb, $post, $lang, $forum, $plugins;
-
-        $webhooks = DiscordHelper::getCachedWebhooks();
-
-        if (!empty($webhooks))
-        {
-            // Hook into RT Discord Webhooks start
-            $plugins->run_hooks('rt_discord_webhooks_editpost_do_editpost_start');
 
             $lang->load(Core::get_plugin_info('prefix'));
-            $thread = get_thread(DiscordHelper::getDiscordMessage((int)$post['pid'], 'tid'));
+
+            $thread = get_thread(DiscordHelper::getDiscordMessage($pid, 'tid'));
 
             // Check if thread exists
             if (!empty($thread))
             {
                 // Generate watch type
                 $watch_type = 'watch_edit_posts';
-                if ((int) $thread['firstpost'] === (int) $post['pid'])
+                if ($post_data_handler->first_post)
                 {
                     $watch_type = 'watch_edit_threads';
                 }
@@ -326,9 +249,9 @@ final class Frontend
                         // Check if webhook is for edit threads/posts
                         (!isset($h[$watch_type]) || (int) $h[$watch_type] !== 1) ||
                         // Check if webhook is watching the current forum
-                        (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
+                        (!isset($h['watch_forums']) || !in_array($fid, $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                         // Check if the user is part of the allowed usergroups to edit threads/posts
-                        (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $mybb->user))
+                        (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $user))
                     )
                     {
                         continue;
@@ -341,12 +264,12 @@ final class Frontend
                     $embeds = [
                         [
                             'author' => [
-                                'name' => !empty($mybb->user['uid']) ?  $mybb->user['username'] : $lang->na,
-                                'url' => $mybb->settings['bburl'] . '/' . get_profile_link($mybb->user['uid']),
-                                'icon_url' => !empty($mybb->user['avatar']) ? $mybb->user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
+                                'name' => $username,
+                                'url' => $mybb->settings['bburl'] . '/' . get_profile_link($uid),
+                                'icon_url' => !empty($user['avatar']) ? $user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
                             ],
                             'title' => $post['subject'],
-                            'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($post['pid'], $thread['tid']) . "#pid{$post['pid']}" : $mybb->settings['bburl'] . '/' . get_thread_link($thread['tid']),
+                            'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}" : $mybb->settings['bburl'] . '/' . get_thread_link($tid),
                             'description' => DiscordHelper::formatMessage(DiscordHelper::truncateMessage((int) $h['character_limit'], $post['message']), true),
                             'color' => DiscordHelper::colorHex((string) $h['webhook_embeds_color']),
                             'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
@@ -358,7 +281,7 @@ final class Frontend
                                 'icon_url' => $h['webhook_embeds_footer_icon_url']
                             ],
                             'image' => [
-                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true, (int) $post['pid']) : DiscordHelper::getImageLink($post['message'], false, (int) $post['pid']),
+                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true, $pid) : DiscordHelper::getImageLink($post['message'], false, $pid),
                             ]
                         ],
                     ];
@@ -382,13 +305,15 @@ final class Frontend
                     }
 
                     // Hook into RT Discord Webhooks end
-                    $plugins->run_hooks('rt_discord_webhooks_editpost_do_editpost_end');
+                    $plugins->run_hooks('rt_discord_webhooks_datahandler_update_post_end', $hook_arguments);
 
                     // Send Webhook request to the Discord
-                    \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage((int) $post['pid']), 'PATCH', $data, $headers);
+                    \rt\DiscordWebhooks\fetch_api($h['webhook_url'] . '/messages/' . DiscordHelper::getDiscordMessage($pid), 'PATCH', $data, $headers);
                 }
             }
         }
+
+        return $post_data_handler;
     }
 
     /**
