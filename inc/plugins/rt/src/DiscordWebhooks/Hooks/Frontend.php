@@ -61,7 +61,7 @@ final class Frontend
                 'post_data_handler' => &$post_data_handler
             ];
 
-            $thread = &$this->data;
+            $thread = &$post_data_handler->data;
 
             $tid = (int)$post_data_handler->tid;
 
