@@ -127,7 +127,7 @@ final class Frontend
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
                         ],
                         'image' => [
-                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($thread['message'], true) : DiscordHelper::getImageLink($thread['message']),
+                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($thread['message'], true, $pid) : DiscordHelper::getImageLink($thread['message'], false, $pid),
                         ]
                     ],
                 ];
@@ -254,7 +254,7 @@ final class Frontend
                                 'icon_url' => $h['webhook_embeds_footer_icon_url']
                             ],
                             'image' => [
-                                'url' => DiscordHelper::getImageLink($updatepost['message']),
+                                'url' => DiscordHelper::getImageLink($updatepost['message'], false, (int) $updatepost['pid']),
                             ]
                         ],
                     ];
@@ -358,7 +358,7 @@ final class Frontend
                                 'icon_url' => $h['webhook_embeds_footer_icon_url']
                             ],
                             'image' => [
-                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true) : DiscordHelper::getImageLink($post['message']),
+                                'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true, (int) $post['pid']) : DiscordHelper::getImageLink($post['message'], false, (int) $post['pid']),
                             ]
                         ],
                     ];
@@ -449,7 +449,7 @@ final class Frontend
                             'icon_url' => $h['webhook_embeds_footer_icon_url']
                         ],
                         'image' => [
-                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true) : DiscordHelper::getImageLink($post['message']),
+                            'url' => isset($forum['allowhtml']) && (int) $forum['allowhtml'] === 1 ? DiscordHelper::getImageLink($post['message'], true, (int) $post['pid']) : DiscordHelper::getImageLink($post['message'], false, (int) $post['pid']),
                         ]
                     ],
                 ];

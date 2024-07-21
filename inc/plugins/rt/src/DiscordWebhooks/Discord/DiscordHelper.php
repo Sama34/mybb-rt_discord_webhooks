@@ -142,8 +142,16 @@ class DiscordHelper
      * @param bool $allow_html
      * @return string
      */
-    public static function getImageLink(string $message, bool $allow_html = false): string
+    public static function getImageLink(string $message, bool $allow_html = false, int $pid = 0): string
     {
+        global $plugins;
+
+        $hook_arguments = [
+            'message' => &$message,
+            'allow_html' => &$allow_html,
+            'pid' => &$pid
+        ];
+
         preg_match('/\[img](.*)\[\/img]/i', $message, $bbcode);
         $bbcode_imagelink = $bbcode[1] ?? '';
 
@@ -165,6 +173,9 @@ class DiscordHelper
         {
             $imageLink = '';
         }
+
+        // Hook into RT Discord Webhooks end
+        $plugins->run_hooks('rt_discord_webhooks_get_image_link_end', $hook_arguments);
 
         return $imageLink;
     }
