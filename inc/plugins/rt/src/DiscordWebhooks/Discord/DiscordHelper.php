@@ -146,10 +146,13 @@ class DiscordHelper
     {
         global $plugins;
 
+        $imageLink = '';
+
         $hook_arguments = [
             'message' => &$message,
             'allow_html' => &$allow_html,
-            'pid' => &$pid
+            'pid' => &$pid,
+            'imageLink' => &$imageLink
         ];
 
         preg_match('/\[img](.*)\[\/img]/i', $message, $bbcode);
@@ -168,10 +171,6 @@ class DiscordHelper
         elseif ($allow_html === true && !empty($html_imagelink))
         {
             $imageLink = $html_imagelink;
-        }
-        else
-        {
-            $imageLink = '';
         }
 
         // Hook into RT Discord Webhooks end
