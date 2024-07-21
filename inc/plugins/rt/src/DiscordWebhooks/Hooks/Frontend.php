@@ -61,26 +61,30 @@ final class Frontend
                 'post_data_handler' => &$post_data_handler
             ];
 
+            // Hook into RT Discord Webhooks start
+            $plugins->run_hooks('rt_discord_webhooks_datahandler_insert_thread_start', $hook_arguments);
+
             $thread = &$post_data_handler->data;
 
-            $tid = (int)$post_data_handler->tid;
+            $tid = (int) $post_data_handler->tid;
 
-            $pid = (int)$post_data_handler->pid;
+            $pid = (int) $post_data_handler->pid;
 
-            $uid = (int)$thread['uid'];
+            $uid = (int) $thread['uid'];
 
             $user = get_user($uid);
 
             $username = $thread['username'];
+
+            $fid = (int) $thread['fid'];
+
+            $forum = get_forum($fid);
 
             // If the poster is unregistered and hasn't set a username, call them Guest
             if(!$thread['uid'] && !$thread['username'])
             {
                 $username = htmlspecialchars_uni($lang->guest);
             }
-
-            // Hook into RT Discord Webhooks start
-            $plugins->run_hooks('rt_discord_webhooks_datahandler_insert_thread_start', $hook_arguments);
 
             $lang->load(Core::get_plugin_info('prefix'));
 
@@ -91,7 +95,7 @@ final class Frontend
                     // Check if webhook is for new threads
                     (!isset($h['watch_new_threads']) || (int) $h['watch_new_threads'] !== 1) ||
                     // Check if webhook is watching the current forum
-                    (!isset($h['watch_forums']) || !in_array((int) $thread['fid'], $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
+                    (!isset($h['watch_forums']) || !in_array($fid, $h['watch_forums']) && !in_array(-1, $h['watch_forums'])) ||
                     // Check if the user is part of the allowed usergroups to post
                     (!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $user))
                 )
@@ -136,8 +140,8 @@ final class Frontend
 
                 $thread_link = $mybb->settings['bburl'] . '/' . get_thread_link($tid);
                 $user_link = $mybb->settings['bburl'] . '/' . get_profile_link($thread['uid']);
-                $forum_link = $mybb->settings['bburl'] . '/' . get_forum_link($thread['fid']);
-                $forum_name = isset(get_forum($thread['fid'])['name']) ? htmlspecialchars_uni(get_forum($thread['fid'])['name']) : $lang->na;
+                $forum_link = $mybb->settings['bburl'] . '/' . get_forum_link($fid);
+                $forum_name = isset($forum['name']) ? htmlspecialchars_uni($forum['name']) : $lang->na;
 
                 $lang->rt_discord_webhooks_new_thread = $lang->sprintf($lang->rt_discord_webhooks_new_thread, $thread_link, $thread['subject'], $user_link, $username, $forum_link, $forum_name);
 
