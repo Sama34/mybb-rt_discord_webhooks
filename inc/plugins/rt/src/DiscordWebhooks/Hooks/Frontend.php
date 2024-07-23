@@ -112,7 +112,7 @@ final class Frontend
                         'author' => [
                             'name' => $username,
                             'url' => $mybb->settings['bburl'] . '/' . get_profile_link($uid),
-                            'icon_url' => !empty($user['avatar']) ? $user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
+                            'icon_url' => DiscordHelper::getAuthorAvatarLink($user),
                         ],
                         'title' => $thread['subject'],
                         'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
@@ -268,7 +268,7 @@ final class Frontend
                             'author' => [
                                 'name' => $username,
                                 'url' => $mybb->settings['bburl'] . '/' . get_profile_link($uid),
-                                'icon_url' => !empty($user['avatar']) ? $user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
+                                'icon_url' => DiscordHelper::getAuthorAvatarLink($user),
                             ],
                             'title' => $post['subject'],
                             'url' => $watch_type === 'watch_edit_posts' ? $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}" : $mybb->settings['bburl'] . '/' . get_thread_link($tid),
@@ -361,7 +361,7 @@ final class Frontend
                         'author' => [
                             'name' => !empty($mybb->user['uid']) ?  $mybb->user['username'] : $lang->na,
                             'url' => $mybb->settings['bburl'] . '/' . get_profile_link($mybb->user['uid']),
-                            'icon_url' => !empty($mybb->user['avatar']) ? $mybb->user['avatar'] : $mybb->settings['bburl'] . '/images/default_avatar.png',
+                            'icon_url' => DiscordHelper::getAuthorAvatarLink($mybb->user),
                         ],
                         'title' => $lang->rt_discord_webhooks_re . $thread_subject,
                         'url' => $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}",

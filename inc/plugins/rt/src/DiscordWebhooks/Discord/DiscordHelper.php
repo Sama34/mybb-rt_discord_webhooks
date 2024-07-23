@@ -180,6 +180,37 @@ class DiscordHelper
     }
 
     /**
+     * Generate avatar link for user
+     *
+     * @param array $user
+     * @return string
+     */
+    public static function getAuthorAvatarLink(array $user): string
+    {
+        global $mybb, $plugins;
+
+        $avatar_url = $mybb->settings['bburl'] . '/images/default_avatar.png';
+
+        if (!empty($user['avatar'])) {
+            $avatar_url = $user['avatar'];
+
+            if($user['avatartype'] === 'upload' && my_strpos($user['avatar'], '://') === false)
+            {
+                $avatar_url = "{$mybb->settings['bburl']}/{$avatar_url}";
+            }
+        }
+
+        $hook_arguments = [
+            'user' => &$user,
+            'avatar_url' => &$avatar_url
+        ];
+
+        $plugins->run_hooks('rt_discord_webhooks_get_author_avatar_link_end', $hook_arguments);
+
+        return $avatar_url;
+    }
+
+    /**
      * Color Hex
      *
      * @param string $color
