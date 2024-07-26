@@ -87,6 +87,7 @@ class DiscordHelper
         }
 
         // Remove other BBCodes which are not added for conversion
+        $conversions['/\[(.*?)\](.*?)\[\/(.*?)\]/is'] = '$2';
         $conversions['/\[(.*?)=(.*?)\](.*?)\[\/(.*?)\]/is'] = '$3';
 
         // Perform the conversions using regular expressions
