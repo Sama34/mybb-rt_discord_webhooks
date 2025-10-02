@@ -15,99 +15,130 @@ namespace rt\DiscordWebhooks;
 
 class Core
 {
-    public static array $PLUGIN_DETAILS = [
-        'name' => 'RT Discord Webhooks',
-        'website' => 'https://github.com/RevertIT/mybb-rt_discord_webhooks',
-        'description' => 'A simple integration of Discord Webhooks API',
-        'author' => 'RevertIT',
-        'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.6',
-        'compatibility' => '18*',
-        'codename' => 'rt_discord_webhooks',
-        'prefix' => 'rt_discord_webhooks',
-    ];
+	public static array $PLUGIN_DETAILS = [
+		'name' => 'RT Discord Webhooks',
+		'website' => 'https://github.com/RevertIT/mybb-rt_discord_webhooks',
+		'description' => 'A simple integration of Discord Webhooks API',
+		'author' => 'RevertIT',
+		'authorsite' => 'https://github.com/RevertIT/',
+		'version' => '1.6',
+		'compatibility' => '18*',
+		'codename' => 'rt_discord_webhooks',
+		'prefix' => 'rt_discord_webhooks',
+	];
 
-    /**
-     * Get plugin info
-     *
-     * @param string $info
-     * @return string
-     */
-    public static function get_plugin_info(string $info): string
-    {
-        return self::$PLUGIN_DETAILS[$info] ?? '';
-    }
+	/**
+	 * Get plugin info
+	 *
+	 * @param string $info
+	 * @return string
+	 */
+	public static function get_plugin_info(string $info): string
+	{
+		return self::$PLUGIN_DETAILS[$info] ?? '';
+	}
 
-    /**
-     * Check if plugin is installed
-     *
-     * @return bool
-     */
-    public static function is_installed(): bool
-    {
-        global $mybb;
+	/**
+	 * Check if plugin is installed
+	 *
+	 * @return bool
+	 */
+	public static function is_installed(): bool
+	{
+		global $db;
 
-        if (isset($mybb->settings['rt_discord_webhooks_enabled']))
-        {
-            return true;
-        }
+		static $is_installed;
 
-        return false;
-    }
+		if ($is_installed === null) {
+			$is_installed = $db->table_exists('rt_discord_webhooks');
 
-    public static function is_enabled(): bool
-    {
-        global $mybb;
+			$existing_columns = array_column($db->show_fields_from('rt_discord_webhooks'), 'Field');
 
-        return isset($mybb->settings['rt_discord_webhooks_enabled']) && (int) $mybb->settings['rt_discord_webhooks_enabled'] === 1;
-    }
+			foreach (
+				[
+					'id',
+					'webhook_url',
+					'webhook_name',
+					'webhook_embeds',
+					'webhook_embeds_color',
+					'webhook_embeds_thumbnail',
+					'webhook_embeds_footer_text',
+					'webhook_embeds_footer_icon_url',
+					'bot_id',
+					'watch_new_threads',
+					'watch_new_posts',
+					'watch_edit_threads',
+					'watch_edit_posts',
+					'watch_delete_threads',
+					'watch_delete_posts',
+					'watch_new_registrations',
+					'character_limit',
+					'allowed_mentions',
+					'watch_usergroups',
+					'watch_forums',
+				] as $column_name
+			) {
+				$is_installed = $is_installed && in_array($column_name, $existing_columns);
+			}
+		}
 
-    /**
-     * Add settings
-     *
-     * @return void
-     */
-    public static function add_settings(): void
-    {
-        global $PL;
+		return $is_installed;
+	}
 
-        $PL->settings(self::$PLUGIN_DETAILS['prefix'],
-            "RT Discord Webhooks",
-            "Setting group for the RT Discord Webhooks plugin.",
-            [
-                "enabled" => [
-                    "title" => "Enable Discord Webhooks plugin?",
-                    "description" => "Enable Discord Webhooks.",
-                    "optionscode" => "yesno",
-                    "value" => 1
-                ],
-                "thirdparty" => [
-                    "title" => "Enable Discord Webhooks for Third-party plugins?",
-                    "description" => "This will let plugins to hook into RT Discord Webhooks and send their custom hooks",
-                    "optionscode" => "yesno",
-                    "value" => 1
-                ],
-            ],
-        );
-    }
+	public static function is_enabled(): bool
+	{
+		global $mybb;
 
-    public static function remove_settings(): void
-    {
-        global $PL;
+		return isset($mybb->settings['rt_discord_webhooks_enabled']) && (int)$mybb->settings['rt_discord_webhooks_enabled'] === 1;
+	}
 
-        $PL->settings_delete(self::$PLUGIN_DETAILS['prefix'], true);
-    }
+	/**
+	 * Add settings
+	 *
+	 * @return void
+	 */
+	public static function add_settings(): void
+	{
+		global $PL;
 
-    public static function add_database_modifications(): void
-    {
-        global $db;
+		$PL->settings(
+			self::$PLUGIN_DETAILS['prefix'],
+			'RT Discord Webhooks',
+			'Setting group for the RT Discord Webhooks plugin.',
+			[
+				'enabled' => [
+					'title' => 'Enable Discord Webhooks plugin?',
+					'description' => 'Enable Discord Webhooks.',
+					'optionscode' => 'yesno',
+					'value' => 1
+				],
+				'thirdparty' => [
+					'title' => 'Enable Discord Webhooks for Third-party plugins?',
+					'description' => 'This will let plugins to hook into RT Discord Webhooks and send their custom hooks',
+					'optionscode' => 'yesno',
+					'value' => 1
+				],
+			],
+		);
+	}
 
-        $table_prefix = TABLE_PREFIX;
+	public static function remove_settings(): void
+	{
+		global $PL;
 
-        switch ($db->type)
-        {
-            case 'pgsql':
-                $db->write_query(<<<PGSQL
+		$PL->settings_delete(self::$PLUGIN_DETAILS['prefix'], true);
+	}
+
+	public static function add_database_modifications(): void
+	{
+		global $db;
+
+		$table_prefix = TABLE_PREFIX;
+
+		switch ($db->type) {
+			case 'pgsql':
+				$db->write_query(
+					<<<PGSQL
                 CREATE TABLE {$table_prefix}rt_discord_webhooks (
                     id SERIAL PRIMARY KEY,
                     webhook_url TEXT,
@@ -130,8 +161,10 @@ class Core
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
-                PGSQL);
-                $db->write_query(<<<PGSQL
+                PGSQL
+				);
+				$db->write_query(
+					<<<PGSQL
                 CREATE TABLE {$table_prefix}rt_discord_webhooks_logs (
                     id SERIAL PRIMARY KEY,
                     discord_message_id TEXT,
@@ -140,10 +173,12 @@ class Core
                     tid INTEGER NOT NULL DEFAULT 0,
                     pid INTEGER NOT NULL DEFAULT 0,
                 );
-                PGSQL);
-                break;
-            case 'sqlite':
-                $db->write_query(<<<SQLITE
+                PGSQL
+				);
+				break;
+			case 'sqlite':
+				$db->write_query(
+					<<<SQLITE
                 CREATE TABLE {$table_prefix}rt_discord_webhooks (
                     id INTEGER PRIMARY KEY,
                     webhook_url TEXT,
@@ -166,8 +201,10 @@ class Core
                     watch_usergroups TEXT,
                     watch_forums TEXT,
                 );
-                SQLITE);
-                $db->write_query(<<<SQLITE
+                SQLITE
+				);
+				$db->write_query(
+					<<<SQLITE
                 CREATE TABLE {$table_prefix}rt_discord_webhooks_logs (
                     id INTEGER PRIMARY KEY,
                     discord_message_id TEXT,
@@ -176,10 +213,12 @@ class Core
                     tid INTEGER NOT NULL DEFAULT 0,
                     pid INTEGER NOT NULL DEFAULT 0,
                 );
-                SQLITE);
-                break;
-            default:
-                $db->write_query(<<<SQL
+                SQLITE
+				);
+				break;
+			default:
+				$db->write_query(
+					<<<SQL
                 CREATE TABLE IF NOT EXISTS `{$table_prefix}rt_discord_webhooks`(
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `webhook_url` TEXT DEFAULT NULL,
@@ -203,8 +242,10 @@ class Core
                     `watch_forums` text DEFAULT NULL,
                     PRIMARY KEY(`id`)
                 ) ENGINE = InnoDB;
-                SQL);
-                $db->write_query(<<<SQL
+                SQL
+				);
+				$db->write_query(
+					<<<SQL
                 CREATE TABLE IF NOT EXISTS `{$table_prefix}rt_discord_webhooks_logs`(
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `discord_message_id` TEXT DEFAULT NULL,
@@ -214,54 +255,56 @@ class Core
                     `pid` INT(11) NOT NULL DEFAULT 0,
                     PRIMARY KEY(`id`)
                 ) ENGINE = InnoDB;
-                SQL);
-        }
-    }
+                SQL
+				);
+		}
+	}
 
-    public static function remove_database_modifications(): void
-    {
-        global $db, $mybb, $page, $lang;
+	public static function remove_database_modifications(): void
+	{
+		global $db, $mybb, $page, $lang;
 
-        if ($mybb->request_method !== 'post')
-        {
-            $lang->load(self::$PLUGIN_DETAILS['prefix']);
+		if ($mybb->request_method !== 'post') {
+			$lang->load(self::$PLUGIN_DETAILS['prefix']);
 
-            $page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=' . self::$PLUGIN_DETAILS['prefix'], $lang->rt_discord_webhooks_uninstall_message, $lang->uninstall);
-        }
+			$page->output_confirm_action(
+				'index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=' . self::$PLUGIN_DETAILS['prefix'],
+				$lang->rt_discord_webhooks_uninstall_message,
+				$lang->uninstall
+			);
+		}
 
-        // Drop tables
-        if (!isset($mybb->input['no']))
-        {
-            $db->drop_table(self::$PLUGIN_DETAILS['prefix'] . '_logs');
-            $db->drop_table(self::$PLUGIN_DETAILS['prefix']);
-        }
-    }
+		// Drop tables
+		if (!isset($mybb->input['no'])) {
+			$db->drop_table(self::$PLUGIN_DETAILS['prefix'] . '_logs');
+			$db->drop_table(self::$PLUGIN_DETAILS['prefix']);
+		}
+	}
 
-    /**
-     * Set plugin cache
-     *
-     * @return void
-     */
-    public static function set_cache(): void
-    {
-        global $cache;
+	/**
+	 * Set plugin cache
+	 *
+	 * @return void
+	 */
+	public static function set_cache(): void
+	{
+		global $cache;
 
-        if (!empty(self::$PLUGIN_DETAILS))
-        {
-            $cache->update(self::$PLUGIN_DETAILS['prefix'], self::$PLUGIN_DETAILS);
-        }
-    }
+		if (!empty(self::$PLUGIN_DETAILS)) {
+			$cache->update(self::$PLUGIN_DETAILS['prefix'], self::$PLUGIN_DETAILS);
+		}
+	}
 
-    /**
-     * Remove plugin cache
-     *
-     * @return void
-     */
-    public static function remove_cache(): void
-    {
-        global $cache;
+	/**
+	 * Remove plugin cache
+	 *
+	 * @return void
+	 */
+	public static function remove_cache(): void
+	{
+		global $cache;
 
-        $cache->delete(self::$PLUGIN_DETAILS['prefix']);
-        $cache->delete(self::$PLUGIN_DETAILS['prefix'] . '_cached_hooks');
-    }
+		$cache->delete(self::$PLUGIN_DETAILS['prefix']);
+		$cache->delete(self::$PLUGIN_DETAILS['prefix'] . '_cached_hooks');
+	}
 }

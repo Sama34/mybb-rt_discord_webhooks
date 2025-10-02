@@ -1,4 +1,5 @@
 <?php
+
 $l['rt_discord_webhooks_menu_name'] = 'RT Discord Webhooks';
 $l['rt_discord_webhooks_menu'] = 'RT Discord Webhooks';
 $l['rt_discord_webhooks_tab_edit_webhook'] = 'Edit a Webhook';

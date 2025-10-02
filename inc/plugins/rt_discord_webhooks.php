@@ -12,79 +12,89 @@
 declare(strict_types=1);
 
 // Disallow direct access to this file for security reasons
-if (!defined("IN_MYBB"))
-{
-    die("Direct initialization of this file is not allowed.");
+use rt\DiscordWebhooks\Core;
+
+use function rt\Autoload\psr4_autoloader;
+use function rt\DiscordWebHooks\autoload_plugin_hooks;
+use function rt\DiscordWebhooks\check_curl_ext;
+use function rt\DiscordWebhooks\check_php_version;
+use function rt\DiscordWebhooks\check_pluginlibrary;
+use function rt\DiscordWebhooks\load_curl_ext;
+use function rt\DiscordWebhooks\load_plugin_version;
+use function rt\DiscordWebhooks\load_pluginlibrary;
+
+if (!defined('IN_MYBB')) {
+	die('Direct initialization of this file is not allowed.');
 }
 
 // Autoload classes
 require_once MYBB_ROOT . 'inc/plugins/rt/vendor/autoload.php';
 
-\rt\Autoload\psr4_autoloader(
-    'rt',
-    'src',
-    'rt\\DiscordWebhooks\\',
-    [
-        'rt/DiscordWebhooks/functions.php',
-    ]
+psr4_autoloader(
+	'rt',
+	'src',
+	'rt\\DiscordWebhooks\\',
+	[
+		'rt/DiscordWebhooks/functions.php',
+	]
 );
 
 // Autoload plugin hooks
-\rt\DiscordWebHooks\autoload_plugin_hooks([
-    '\rt\DiscordWebhooks\Hooks\Frontend',
-    '\rt\DiscordWebhooks\Hooks\Backend',
+autoload_plugin_hooks([
+	'\rt\DiscordWebhooks\Hooks\Frontend',
+	'\rt\DiscordWebhooks\Hooks\Backend',
 ]);
 
 // Health checks
-\rt\DiscordWebhooks\load_plugin_version();
-\rt\DiscordWebhooks\load_pluginlibrary();
-\rt\DiscordWebhooks\load_curl_ext();
+load_plugin_version();
+load_pluginlibrary();
+load_curl_ext();
 
 function rt_discord_webhooks_info(): array
 {
-    return \rt\DiscordWebhooks\Core::$PLUGIN_DETAILS;
+	return Core::$PLUGIN_DETAILS;
 }
 
 function rt_discord_webhooks_install(): void
 {
-    \rt\DiscordWebhooks\check_php_version();
-    \rt\DiscordWebhooks\check_pluginlibrary();
-    \rt\DiscordWebhooks\check_curl_ext();
+	check_php_version();
+	check_pluginlibrary();
+	check_curl_ext();
 
-    \rt\DiscordWebhooks\Core::add_database_modifications();
-    \rt\DiscordWebhooks\Core::add_settings();
-    \rt\DiscordWebhooks\Core::set_cache();
+	Core::add_database_modifications();
+	Core::add_settings();
+	Core::set_cache();
 }
 
 function rt_discord_webhooks_is_installed(): bool
 {
-    return \rt\DiscordWebhooks\Core::is_installed();
+	return Core::is_installed();
 }
 
 function rt_discord_webhooks_uninstall(): void
 {
-    \rt\DiscordWebhooks\check_php_version();
-    \rt\DiscordWebhooks\check_pluginlibrary();
-    \rt\DiscordWebhooks\check_curl_ext();
+	check_php_version();
+	check_pluginlibrary();
+	check_curl_ext();
 
-    \rt\DiscordWebhooks\Core::remove_database_modifications();
-    \rt\DiscordWebhooks\Core::remove_settings();
-    \rt\DiscordWebhooks\Core::remove_cache();
+	Core::remove_database_modifications();
+	Core::remove_settings();
+	Core::remove_cache();
 }
 
 function rt_discord_webhooks_activate(): void
 {
-    \rt\DiscordWebhooks\check_php_version();
-    \rt\DiscordWebhooks\check_pluginlibrary();
-    \rt\DiscordWebhooks\check_curl_ext();
+	check_php_version();
+	check_pluginlibrary();
+	check_curl_ext();
 
-    \rt\DiscordWebhooks\Core::add_settings();
-    \rt\DiscordWebhooks\Core::set_cache();
+	Core::add_settings();
+	Core::set_cache();
 }
 
 function rt_discord_webhooks_deactivate(): void
 {
-    \rt\DiscordWebhooks\check_php_version();
-    \rt\DiscordWebhooks\check_pluginlibrary();
-    \rt\DiscordWebhooks\check_curl_ext();
+	check_php_version();
+	check_pluginlibrary();
+	check_curl_ext();
 }
