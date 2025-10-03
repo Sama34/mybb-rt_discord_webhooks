@@ -28,6 +28,22 @@ $l['rt_discord_webhooks_webhooks_name_limit'] = 'Webhook name must be shorter th
 $l['rt_discord_webhooks_webhooks_bot_id'] = 'Bot ID (Forum Account UID)';
 $l['rt_discord_webhooks_webhooks_bot_id_invalid'] = 'Please enter a valid ID of a forum account which will act as a Discord posting username/avatar.';
 $l['rt_discord_webhooks_webhooks_bot_id_not_found'] = 'Can\'t find the user with such id';
+$l['rt_discord_webhooks_webhooks_message'] = 'Webhook Message';
+$l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message will be sent to Discord instead of the post message. You can use the following variables in your message: <br>
+{user_id} -> User identifier<br>
+{user_username} -> User username<br>
+{user_email} -> User email (if not hidden)<br>
+{user_posts} -> User total posts<br>
+{user_threads} -> User total threads<br>
+{user_group_additional} -> User additional groups<br>
+{user_group_display} -> User display group<br>
+{user_title} -> User title<br>
+{user_signature} -> User signature<br>
+{user_reputation} -> User reputation<br>
+{user_warning_points} -> User warning points<br>
+{user_field_X} -> Custom user field value, where <code>X</code> is the custom profile field identifier.<br>
+{xthreads_X} -> Custom thread field value, where <code>X</code> is the custom thread field key.<br>
+';
 $l['rt_discord_webhooks_webhook_embeds'] = 'Webhook Embeds';
 $l['rt_discord_webhooks_webhook_embeds_desc'] = 'Webhook embeds in Discord are a way to display rich and formatted content within a message sent by a webhook. Embeds allow you to include various elements such as titles, descriptions, fields, images, and more to create visually appealing and structured messages.';
 $l['rt_discord_webhooks_webhook_embeds_color'] = 'Webhook Embeds color (#Hex)';

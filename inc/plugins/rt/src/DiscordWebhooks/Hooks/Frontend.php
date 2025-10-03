@@ -108,6 +108,8 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
+				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+
 				$embeds = [
 					[
 						'author' => [
@@ -117,9 +119,16 @@ final class Frontend
 						],
 						'title' => $thread['subject'],
 						'url' => $mybb->settings['bburl'] . '/' . get_thread_link($tid),
-						'description' => DiscordHelper::formatMessage(
-							DiscordHelper::truncateMessage((int)$h['character_limit'], $thread['message']),
-							true
+						'description' => str_replace(
+							array_keys($replace_objects),
+							array_values($replace_objects),
+							DiscordHelper::formatMessage(
+								DiscordHelper::truncateMessage(
+									(int)$h['character_limit'],
+									$thread['message']
+								),
+								true
+							)
 						),
 						'color' => DiscordHelper::colorHex((string)$h['webhook_embeds_color']),
 						'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
@@ -272,6 +281,8 @@ final class Frontend
 						'Content-Type: application/json',
 					];
 
+					$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+
 					$embeds = [
 						[
 							'author' => [
@@ -284,9 +295,16 @@ final class Frontend
 									$pid,
 									$tid
 								) . "#pid{$pid}" : $mybb->settings['bburl'] . '/' . get_thread_link($tid),
-							'description' => DiscordHelper::formatMessage(
-								DiscordHelper::truncateMessage((int)$h['character_limit'], $message),
-								true
+							'description' => str_replace(
+								array_keys($replace_objects),
+								array_values($replace_objects),
+								DiscordHelper::formatMessage(
+									DiscordHelper::truncateMessage(
+										(int)$h['character_limit'],
+										$h['webhook_message'] ?? $message
+									),
+									true
+								)
 							),
 							'color' => DiscordHelper::colorHex((string)$h['webhook_embeds_color']),
 							'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
@@ -380,6 +398,8 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
+				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+
 				$embeds = [
 					[
 						'author' => [
@@ -389,9 +409,16 @@ final class Frontend
 						],
 						'title' => $lang->rt_discord_webhooks_re . $thread_subject,
 						'url' => $mybb->settings['bburl'] . '/' . get_post_link($pid, $tid) . "#pid{$pid}",
-						'description' => DiscordHelper::formatMessage(
-							DiscordHelper::truncateMessage((int)$h['character_limit'], $post['message']),
-							true
+						'description' => str_replace(
+							array_keys($replace_objects),
+							array_values($replace_objects),
+							DiscordHelper::formatMessage(
+								DiscordHelper::truncateMessage(
+									(int)$h['character_limit'],
+									$post['message']
+								),
+								true
+							)
 						),
 						'color' => DiscordHelper::colorHex((string)$h['webhook_embeds_color']),
 						'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),

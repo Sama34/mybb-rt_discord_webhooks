@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace rt\DiscordWebhooks;
 
+use postParser;
+
 class Core
 {
 	public static array $PLUGIN_DETAILS = [
@@ -59,6 +61,7 @@ class Core
 					'id',
 					'webhook_url',
 					'webhook_name',
+					'webhook_message',
 					'webhook_embeds',
 					'webhook_embeds_color',
 					'webhook_embeds_thumbnail',
@@ -143,6 +146,7 @@ class Core
                     id SERIAL PRIMARY KEY,
                     webhook_url TEXT,
                     webhook_name VARCHAR(255) NULL DEFAULT NULL
+                    webhook_message TEXT,
                     webhook_embeds SMALLINT NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -183,6 +187,7 @@ class Core
                     id INTEGER PRIMARY KEY,
                     webhook_url TEXT,
                     webhook_name VARCHAR(255) DEFAULT NULL,
+                    webhook_message TEXT,
                     webhook_embeds INTEGER NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -223,6 +228,7 @@ class Core
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `webhook_url` TEXT DEFAULT NULL,
                     `webhook_name` VARCHAR(255) NULL DEFAULT NULL,
+                    `webhook_message` TEXT DEFAULT NULL,
                     `webhook_embeds` TINYINT(4) NOT NULL DEFAULT 0,
                     `webhook_embeds_color` TEXT DEFAULT NULL,
                     `webhook_embeds_thumbnail` TEXT DEFAULT NULL,
@@ -306,5 +312,256 @@ class Core
 
 		$cache->delete(self::$PLUGIN_DETAILS['prefix']);
 		$cache->delete(self::$PLUGIN_DETAILS['prefix'] . '_cached_hooks');
+	}
+
+	public static function get_replace_objects(int $post_id): array
+	{
+		global $mybb, $db, $lang, $plugins;
+
+		$post_data = get_post($post_id);
+
+		$user_id = (int)$post_data['uid'];
+
+		$user_data = get_user($user_id);
+
+		$thread_id = (int)$post_data['tid'];
+
+		$thread_data = get_thread($thread_id);
+
+		$forum_id = (int)$post_data['fid'];
+
+		$groups_cache = $mybb->cache->read('usergroups');
+
+		$titles_cache = $mybb->cache->read('usertitles');
+
+		$replace_objects = [
+			'user_id' => $user_data['uid'] ?? 0,
+			'user_posts' => my_number_format($user_data['postnum'] ?? 0),
+			'user_threads' => my_number_format($user_data['threadnum'] ?? 0),
+		];
+
+		if (empty($user_data['hideemail'])) {
+			$replace_objects['user_email'] = $user_data['email'] ?? '';
+		}
+
+		// Get the usergroup
+		if (!empty($user_data['usergroup'])) {
+			$user_group = usergroup_permissions($user_data['usergroup']);
+		} else {
+			$user_group = usergroup_permissions(1);
+		}
+
+		//$replace_objects['user_group_primary'] = $groups_cache[$user_data['usergroup']]['title'] ?? '';
+
+		$replace_objects['user_group_additional'] = implode(
+			$lang->comma ?? ', ',
+			array_map(function ($gid) use ($groups_cache) {
+				return $groups_cache[$gid]['title'] ?? '';
+			}, explode(',', $user_data['additionalgroups'] ?? ''))
+		);
+
+		global $displaygroupfields;
+
+		$displaygroupfields = array('title', 'description', 'namestyle', 'usertitle', 'image');
+
+		if (empty($user_data['displaygroup'])) {
+			$user_data['displaygroup'] = $user_data['usergroup'];
+		}
+
+		$display_group = usergroup_displaygroup($user_data['displaygroup']);
+
+		if (is_array($display_group)) {
+			$user_group = array_merge($user_group, $display_group);
+		}
+
+		$replace_objects['user_group_display'] = $groups_cache[$user_data['displaygroup']]['title'] ?? '';
+
+		$replace_objects['user_username'] = $user_data['username'] ?? $lang->guest ?? 'Guest';
+
+		// Event made by registered user
+		if (!empty($user_data['uid'])) {
+			if (trim($user_data['usertitle']) != '') {
+				// Do nothing, no need for an extra variable..
+			} elseif ($user_group['usertitle'] != '') {
+				$user_data['usertitle'] = $user_group['usertitle'];
+			} elseif (is_array($titles_cache) && !$user_group['usertitle']) {
+				reset($titles_cache);
+
+				foreach ($titles_cache as $title) {
+					if ($user_data['postnum'] >= $title['posts']) {
+						$user_data['usertitle'] = $title['title'];
+
+						break;
+					}
+				}
+			}
+		} elseif ($user_group['usertitle']) {
+			$user_data['usertitle'] = $user_group['usertitle'];
+		} else {
+			$user_data['usertitle'] = $lang->guest ?? 'Guest';
+		}
+
+		$replace_objects['user_title'] = $user_data['usertitle'];
+
+		global $parser;
+
+		if (!($parser instanceof postParser)) {
+			require_once MYBB_ROOT . 'inc/class_parser.php';
+
+			$parser = new postParser();
+		}
+
+		$replace_objects['user_signature'] = $parser->parse_message($user_data['signature'], array(
+			'allow_html' => !empty($mybb->settings['sightml']),
+			'allow_mycode' => !empty($mybb->settings['sigmycode']),
+			'allow_smilies' => !empty($mybb->settings['sigsmilies']),
+			'allow_imgcode' => !empty($mybb->settings['sigimgcode']),
+			'filter_badwords' => true
+		));
+
+		$replace_objects['user_reputation'] = get_reputation($user_data['reputation'] ?? 0);
+
+		$warning_level = round($user_data['warningpoints'] / $mybb->settings['maxwarningpoints'] * 100);
+
+		$replace_objects['user_warning_points'] = get_colored_warning_level(min($warning_level, 100));
+
+		$hook_arguments = [
+			'post_id' => $post_id,
+			'replace_objects' => &$replace_objects,
+		];
+
+		$user_fields = [];
+
+		$query = $db->simple_select('userfields', '*', "ufid='{$user_id}'");
+
+		foreach ((array)$db->fetch_array($query) as $column_name => $field_value) {
+			if (str_starts_with($column_name, 'fid')) {
+				$user_fields[$column_name] = $field_value;
+			}
+		}
+
+		$profile_fields_cache = $mybb->cache->read('profilefields');
+
+		foreach ($profile_fields_cache as $custom_field) {
+			if (!is_member($custom_field['viewableby'], $user_data)) {
+				continue;
+			}
+
+			$type = trim(
+				explode(
+					"\n",
+					$custom_field['type'],
+					2
+				)[0]
+			);
+
+			$custom_field_value = '';
+
+			$custom_field_value_multi = [];
+
+			$field = "fid{$custom_field['fid']}";
+
+			if (isset($user_fields[$field])) {
+				$user_options = explode("\n", $user_fields[$field]);
+
+				$custom_field_value = $comma = '';
+
+				if (is_array($user_options) && ($type == 'multiselect' || $type == 'checkbox')) {
+					foreach ($user_options as $val) {
+						if ($val) {
+							$custom_field_value_multi[] = $val;
+						}
+					}
+
+					if ($custom_field_value_multi) {
+						$custom_field_value = implode($lang->comma ?? ', ', $custom_field_value_multi);
+					}
+				} else {
+					$parser_options = array(
+						'allow_html' => !empty($custom_field['allowhtml']),
+						'allow_mycode' => !empty($custom_field['allowmycode']),
+						'allow_smilies' => !empty($custom_field['allowsmilies']),
+						'allow_imgcode' => !empty($mybb->settings['guestimages']) && !empty($custom_field['allowimgcode']),
+						'allow_videocode' => !empty($custom_field['allowvideocode']),
+						'filter_badwords' => true
+					);
+
+					if ($custom_field['type'] == 'textarea') {
+						$parser_options['me_username'] = $user_data['username'];
+					} else {
+						$parser_options['nl2br'] = false;
+					}
+
+					$custom_field_value = $parser->parse_message($user_fields[$field], $parser_options);
+				}
+			}
+
+			$replace_objects['user_field_' . $custom_field['fid']] = $custom_field_value ?? '';
+		}
+
+		if ($thread_id &&
+			function_exists('xthreads_gettfcache') &&
+			$threadfield_cache = xthreads_gettfcache()) {
+			$query_fields = ['t.tid'];
+
+			foreach ($threadfield_cache as $k => &$v) {
+				$available = empty($v['forums']);
+
+				if (!$available) {
+					foreach (array_map('intval', explode(',', $v['forums'])) as $fid) {
+						if ($fid === $forum_id) {
+							$available = true;
+
+							break;
+						}
+					}
+				}
+
+				if ($available) {
+					$query_fields[] = "tfd.`{$v['field']}` AS `xthreads_{$v['field']}`";
+				}
+			}
+
+			$query = $db->simple_select(
+				"threads t LEFT JOIN {$db->table_prefix}threadfields_data tfd ON (tfd.tid=t.tid)",
+				implode(', ', $query_fields),
+				"t.tid='{$thread_id}'",
+				['limit' => 1]
+			);
+
+			$xthreads_data = (array)$db->fetch_array($query);
+
+			xthreads_set_threadforum_urlvars('thread', $thread_id);
+
+			xthreads_set_threadforum_urlvars('forum', $forum_id);
+
+			$threadfields = array();
+
+			foreach ($threadfield_cache as $k => &$v) {
+				if ($v['forums'] && strpos(',' . $v['forums'] . ',', ',' . $forum_id . ',') === false) {
+					continue;
+				}
+
+				xthreads_get_xta_cache($v, $thread_id);
+
+				$threadfields[$k] =& $xthreads_data['xthreads_' . $k];
+
+				xthreads_sanitize_disp(
+					$threadfields[$k],
+					$v,
+					($user_data['username'] !== '' ? $user_data['username'] : $xthreads_data['threadusername'])
+				);
+			}
+
+			foreach ($threadfields as $threadfield_name => $threadfield_value) {
+				$replace_objects['xthreads_' . $threadfield_name] = $threadfield_value ?? '';
+			}
+		}
+
+		$plugins->run_hooks('rt_discord_webhooks_get_replace_objects', $hook_arguments);
+
+		return array_flip(array_map(function ($value) {
+			return '{' . $value . '}';
+		}, array_flip($replace_objects)));
 	}
 }

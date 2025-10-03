@@ -84,6 +84,20 @@ function rt_discord_webhooks_uninstall(): void
 
 function rt_discord_webhooks_activate(): void
 {
+	global $db;
+
+	if ($db->table_exists('rt_discord_webhooks') &&
+		!$db->field_exists('webhook_message', 'rt_discord_webhooks')) {
+		switch ($db->type) {
+			case 'pgsql':
+			case 'sqlite':
+				$db->add_column('rt_discord_webhooks', 'webhook_message', 'TEXT');
+				break;
+			default:
+				$db->add_column('rt_discord_webhooks', 'webhook_message', 'TEXT DEFAULT NULL');
+		}
+	}
+
 	check_php_version();
 	check_pluginlibrary();
 	check_curl_ext();

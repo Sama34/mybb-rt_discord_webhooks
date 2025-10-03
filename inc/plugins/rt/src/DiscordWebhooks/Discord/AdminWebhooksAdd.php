@@ -28,6 +28,10 @@ final class AdminWebhooksAdd extends AdminWebhooksConfig
 		);
 		$page->output_nav_tabs($sub_tabs, 'add_webhook');
 
+		global $plugins;
+
+		$plugins->run_hooks('rt_discord_webhooks_admin_add_start', $this);
+
 		if ($this->mybb->request_method === 'post') {
 			if ($this->totalWebhookRows() > 100) {
 				flash_message($this->lang->rt_discord_webhooks_webhooks_more_than_100, 'error');
@@ -89,6 +93,7 @@ final class AdminWebhooksAdd extends AdminWebhooksConfig
 			$insert_data = [
 				'webhook_url' => $this->db->escape_string($this->mybb->get_input('webhook_url')),
 				'bot_id' => $this->mybb->get_input('bot_id', MyBB::INPUT_INT),
+				'webhook_message' => $this->db->escape_string($this->mybb->get_input('webhook_message')),
 				'webhook_embeds' => !empty($this->mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
 				'watch_new_threads' => !empty($this->mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
 				'watch_new_posts' => !empty($this->mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
@@ -173,6 +178,17 @@ final class AdminWebhooksAdd extends AdminWebhooksConfig
 				array('id' => 'webhook_name')
 			),
 			'webhook_name'
+		);
+
+		$form_container->output_row(
+			$this->lang->rt_discord_webhooks_webhooks_message,
+			$this->lang->rt_discord_webhooks_webhooks_message_desc,
+			$form->generate_text_area(
+				'webhook_message',
+				$this->mybb->get_input('webhook_message'),
+				array('id' => 'webhook_message')
+			),
+			'webhook_message'
 		);
 		$form_container->output_row(
 			$this->lang->rt_discord_webhooks_webhook_embeds . ' <em>*</em>',
