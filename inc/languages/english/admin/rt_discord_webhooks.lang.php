@@ -29,7 +29,7 @@ $l['rt_discord_webhooks_webhooks_bot_id'] = 'Bot ID (Forum Account UID)';
 $l['rt_discord_webhooks_webhooks_bot_id_invalid'] = 'Please enter a valid ID of a forum account which will act as a Discord posting username/avatar.';
 $l['rt_discord_webhooks_webhooks_bot_id_not_found'] = 'Can\'t find the user with such id';
 $l['rt_discord_webhooks_webhooks_message'] = 'Webhook Message';
-$l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message will be sent to Discord instead of the post message. You can use the following variables in your message: <br>
+$l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message will be sent to Discord instead of the post message. You can use the following variables in your message for post or user related webhooks: <br>
 {user_id} -> User identifier<br>
 {user_username} -> User username<br>
 {user_email} -> User email (if not hidden)<br>
@@ -41,7 +41,9 @@ $l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message wi
 {user_signature} -> User signature<br>
 {user_reputation} -> User reputation<br>
 {user_warning_points} -> User warning points<br>
-{user_field_X} -> Custom user field value, where <code>X</code> is the custom profile field identifier.<br>
+{user_field_X} -> Custom user field value, where <code>X</code> is the custom profile field identifier.<br><br>
+
+ You can use the following variables in your message for post related webhooks: <br>
 {xthreads_X} -> Custom thread field value, where <code>X</code> is the custom thread field key.<br>
 ';
 $l['rt_discord_webhooks_webhook_embeds'] = 'Webhook Embeds';

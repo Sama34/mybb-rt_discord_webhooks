@@ -125,7 +125,7 @@ final class Frontend
 							DiscordHelper::formatMessage(
 								DiscordHelper::truncateMessage(
 									(int)$h['character_limit'],
-									$thread['message']
+									$h['webhook_message'] ?? $thread['message']
 								),
 								true
 							)
@@ -182,7 +182,17 @@ final class Frontend
 						$data['content'] = '';
 					}
 				} else {
-					$data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_thread);
+					$data['content'] = str_replace(
+						array_keys($replace_objects),
+						array_values($replace_objects),
+						DiscordHelper::formatMessage(
+							DiscordHelper::truncateMessage(
+								(int)$h['character_limit'],
+								$h['webhook_message'] ?? $thread['message']
+							),
+							true
+						)
+					);
 				}
 
 				// Hook into RT Discord Webhooks end
@@ -415,7 +425,7 @@ final class Frontend
 							DiscordHelper::formatMessage(
 								DiscordHelper::truncateMessage(
 									(int)$h['character_limit'],
-									$post['message']
+									$h['webhook_message'] ?? $post['message']
 								),
 								true
 							)
@@ -476,7 +486,13 @@ final class Frontend
 						$data['content'] = '';
 					}
 				} else {
-					$data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_post);
+					$data['content'] = str_replace(
+						array_keys($replace_objects),
+						array_values($replace_objects),
+						DiscordHelper::formatMessage(
+							$h['webhook_message'] ?? $lang->rt_discord_webhooks_new_post
+						)
+					);
 				}
 
 				// Hook into RT Discord Webhooks end
@@ -658,6 +674,8 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
+				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects(user_id: (int)$user_info['uid']);
+
 				$embeds = [
 					[
 						'title' => $lang->sprintf(
@@ -665,9 +683,16 @@ final class Frontend
 							!empty($user_info['username']) ? $user_info['username'] : $lang->na
 						),
 						'url' => $mybb->settings['bburl'] . '/' . get_profile_link($user_info['uid']),
-						'description' => DiscordHelper::formatMessage(
-							$lang->sprintf($lang->rt_discord_webhooks_new_registrations_desc, $user_info['username']),
-							true
+						'description' => str_replace(
+							array_keys($replace_objects),
+							array_values($replace_objects),
+							DiscordHelper::formatMessage(
+								$h['webhook_message'] ?? $lang->sprintf(
+								$lang->rt_discord_webhooks_new_registrations_desc,
+								$user_info['username']
+							),
+								true
+							)
 						),
 						'color' => DiscordHelper::colorHex((string)$h['webhook_embeds_color']),
 						'timestamp' => (new DateTimeImmutable('@' . TIME_NOW))->format('Y-m-d\TH:i:s\Z'),
@@ -699,7 +724,13 @@ final class Frontend
 				if (!empty($h['webhook_embeds'])) {
 					$data['embeds'] = $embeds;
 				} else {
-					$data['content'] = DiscordHelper::formatMessage($lang->rt_discord_webhooks_new_registrations);
+					$data['content'] = str_replace(
+						array_keys($replace_objects),
+						array_values($replace_objects),
+						DiscordHelper::formatMessage(
+							$h['webhook_message'] ?? $lang->rt_discord_webhooks_new_registrations
+						)
+					);
 				}
 
 				// Hook into RT Discord Webhooks end

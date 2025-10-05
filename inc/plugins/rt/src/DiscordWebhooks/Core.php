@@ -54,34 +54,36 @@ class Core
 		if ($is_installed === null) {
 			$is_installed = $db->table_exists('rt_discord_webhooks');
 
-			$existing_columns = array_column($db->show_fields_from('rt_discord_webhooks'), 'Field');
+			if ($is_installed) {
+				$existing_columns = array_column($db->show_fields_from('rt_discord_webhooks'), 'Field');
 
-			foreach (
-				[
-					'id',
-					'webhook_url',
-					'webhook_name',
-					'webhook_message',
-					'webhook_embeds',
-					'webhook_embeds_color',
-					'webhook_embeds_thumbnail',
-					'webhook_embeds_footer_text',
-					'webhook_embeds_footer_icon_url',
-					'bot_id',
-					'watch_new_threads',
-					'watch_new_posts',
-					'watch_edit_threads',
-					'watch_edit_posts',
-					'watch_delete_threads',
-					'watch_delete_posts',
-					'watch_new_registrations',
-					'character_limit',
-					'allowed_mentions',
-					'watch_usergroups',
-					'watch_forums',
-				] as $column_name
-			) {
-				$is_installed = $is_installed && in_array($column_name, $existing_columns);
+				foreach (
+					[
+						'id',
+						'webhook_url',
+						'webhook_name',
+						'webhook_message',
+						'webhook_embeds',
+						'webhook_embeds_color',
+						'webhook_embeds_thumbnail',
+						'webhook_embeds_footer_text',
+						'webhook_embeds_footer_icon_url',
+						'bot_id',
+						'watch_new_threads',
+						'watch_new_posts',
+						'watch_edit_threads',
+						'watch_edit_posts',
+						'watch_delete_threads',
+						'watch_delete_posts',
+						'watch_new_registrations',
+						'character_limit',
+						'allowed_mentions',
+						'watch_usergroups',
+						'watch_forums',
+					] as $column_name
+				) {
+					$is_installed = $is_installed && in_array($column_name, $existing_columns);
+				}
 			}
 		}
 
@@ -314,21 +316,21 @@ class Core
 		$cache->delete(self::$PLUGIN_DETAILS['prefix'] . '_cached_hooks');
 	}
 
-	public static function get_replace_objects(int $post_id): array
+	public static function get_replace_objects(?int $post_id = null, ?int $user_id = null): array
 	{
 		global $mybb, $db, $lang, $plugins;
 
-		$post_data = get_post($post_id);
+		if ($post_id) {
+			$post_data = get_post($post_id);
 
-		$user_id = (int)$post_data['uid'];
+			$user_id = (int)$post_data['uid'];
+
+			$thread_id = (int)$post_data['tid'];
+
+			$forum_id = (int)$post_data['fid'];
+		}
 
 		$user_data = get_user($user_id);
-
-		$thread_id = (int)$post_data['tid'];
-
-		$thread_data = get_thread($thread_id);
-
-		$forum_id = (int)$post_data['fid'];
 
 		$groups_cache = $mybb->cache->read('usergroups');
 
@@ -413,9 +415,8 @@ class Core
 
 		$replace_objects['user_signature'] = $parser->parse_message($user_data['signature'], array(
 			'allow_html' => !empty($mybb->settings['sightml']),
-			'allow_mycode' => !empty($mybb->settings['sigmycode']),
-			'allow_smilies' => !empty($mybb->settings['sigsmilies']),
-			'allow_imgcode' => !empty($mybb->settings['sigimgcode']),
+			'allow_mycode' => false,
+			'allow_smilies' => false,
 			'filter_badwords' => true
 		));
 
@@ -427,6 +428,7 @@ class Core
 
 		$hook_arguments = [
 			'post_id' => $post_id,
+			'user_id' => $user_id,
 			'replace_objects' => &$replace_objects,
 		];
 
@@ -479,10 +481,8 @@ class Core
 				} else {
 					$parser_options = array(
 						'allow_html' => !empty($custom_field['allowhtml']),
-						'allow_mycode' => !empty($custom_field['allowmycode']),
-						'allow_smilies' => !empty($custom_field['allowsmilies']),
-						'allow_imgcode' => !empty($mybb->settings['guestimages']) && !empty($custom_field['allowimgcode']),
-						'allow_videocode' => !empty($custom_field['allowvideocode']),
+						'allow_mycode' => false,
+						'allow_smilies' => false,
 						'filter_badwords' => true
 					);
 
@@ -499,7 +499,8 @@ class Core
 			$replace_objects['user_field_' . $custom_field['fid']] = $custom_field_value ?? '';
 		}
 
-		if ($thread_id &&
+		if (!empty($thread_id) &&
+			!empty($forum_id) &&
 			function_exists('xthreads_gettfcache') &&
 			$threadfield_cache = xthreads_gettfcache()) {
 			$query_fields = ['t.tid'];
@@ -560,8 +561,11 @@ class Core
 
 		$plugins->run_hooks('rt_discord_webhooks_get_replace_objects', $hook_arguments);
 
-		return array_flip(array_map(function ($value) {
-			return '{' . $value . '}';
-		}, array_flip($replace_objects)));
+		return array_map(function (string $value): string {
+			return strip_tags($value);
+		},
+			array_flip(array_map(function (string $value): string {
+				return '{' . $value . '}';
+			}, array_flip($replace_objects))));
 	}
 }
