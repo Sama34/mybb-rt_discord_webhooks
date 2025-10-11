@@ -108,7 +108,7 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
-				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+				$replace_objects = Core::get_replace_objects($pid);
 
 				$embeds = [
 					[
@@ -291,7 +291,7 @@ final class Frontend
 						'Content-Type: application/json',
 					];
 
-					$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+					$replace_objects = Core::get_replace_objects($pid);
 
 					$embeds = [
 						[
@@ -408,7 +408,7 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
-				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects($pid);
+				$replace_objects = Core::get_replace_objects($pid);
 
 				$embeds = [
 					[
@@ -674,7 +674,7 @@ final class Frontend
 					'Content-Type: application/json',
 				];
 
-				$replace_objects = \rt\DiscordWebhooks\Core::get_replace_objects(user_id: (int)$user_info['uid']);
+				$replace_objects = Core::get_replace_objects(null, (int)$user_info['uid']);
 
 				$embeds = [
 					[

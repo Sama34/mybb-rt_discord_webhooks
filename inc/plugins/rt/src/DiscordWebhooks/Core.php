@@ -437,7 +437,7 @@ class Core
 		$query = $db->simple_select('userfields', '*', "ufid='{$user_id}'");
 
 		foreach ((array)$db->fetch_array($query) as $column_name => $field_value) {
-			if (str_starts_with($column_name, 'fid')) {
+			if (my_substr($column_name, 0, 3) === 'fid') {
 				$user_fields[$column_name] = $field_value;
 			}
 		}
