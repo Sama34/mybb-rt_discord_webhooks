@@ -445,7 +445,7 @@ class Core
 		$profile_fields_cache = $mybb->cache->read('profilefields');
 
 		foreach ($profile_fields_cache as $custom_field) {
-			if (!is_member($custom_field['viewableby'], $user_data)) {
+			if (!\is_member($custom_field['viewableby'], $user_data)) {
 				continue;
 			}
 

@@ -20,6 +20,7 @@ use rt\DiscordWebhooks\Core;
 use rt\DiscordWebhooks\Discord\DiscordHelper;
 
 use function rt\DiscordWebhooks\fetch_api;
+use function rt\DiscordWebhooks\get_avatar_url;
 
 final class Frontend
 {
@@ -91,7 +92,7 @@ final class Frontend
 			foreach ($webhooks as $h) {
 				// Permissions first
 				if (
-					// Check if webhook is for new threads
+					// Check if a webhook is for new threads
 					(!isset($h['watch_new_threads']) || (int)$h['watch_new_threads'] !== 1) ||
 					// Check if webhook is watching the current forum
 					(!isset($h['watch_forums']) || !in_array($fid, $h['watch_forums']) && !in_array(
@@ -99,7 +100,7 @@ final class Frontend
 							$h['watch_forums']
 						)) ||
 					// Check if the user is part of the allowed usergroups to post
-					(!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member($h['watch_usergroups'], $user))
+					(!isset($h['watch_usergroups']) || !is_member($h['watch_usergroups'], $user))
 				) {
 					continue;
 				}
@@ -151,7 +152,7 @@ final class Frontend
 
 				$data = [
 					'username' => !empty($h['user']['username']) ? $h['user']['username'] : $lang->na,
-					'avatar_url' => !empty($h['user']['avatar']) ? $h['user']['avatar'] : '',
+					'avatar_url' => get_avatar_url($h['user']['avatar'] ?? ''),
 					'tts' => false,
 				];
 
@@ -200,6 +201,7 @@ final class Frontend
 
 				// Send Webhook request to the Discord
 				$api = fetch_api($h['webhook_url'] . '?wait=true', 'POST', $data, $headers);
+
 				$api = json_decode($api, true);
 
 				if (isset($api['id'])) {
@@ -279,10 +281,7 @@ final class Frontend
 								$h['watch_forums']
 							)) ||
 						// Check if the user is part of the allowed usergroups to edit threads/posts
-						(!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member(
-								$h['watch_usergroups'],
-								$user
-							))
+						(!isset($h['watch_usergroups']) || !is_member($h['watch_usergroups'], $user))
 					) {
 						continue;
 					}
@@ -337,7 +336,7 @@ final class Frontend
 
 					$data = [
 						'username' => !empty($h['user']['username']) ? $h['user']['username'] : $lang->na,
-						'avatar_url' => !empty($h['user']['avatar']) ? $h['user']['avatar'] : '',
+						'avatar_url' => get_avatar_url($h['user']['avatar'] ?? ''),
 						'tts' => false,
 						'embeds' => $embeds,
 					];
@@ -396,10 +395,7 @@ final class Frontend
 							$h['watch_forums']
 						)) ||
 					// Check if the user is part of the allowed usergroups to post reply
-					(!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member(
-							$h['watch_usergroups'],
-							$mybb->user
-						))
+					(!isset($h['watch_usergroups']) || !is_member($h['watch_usergroups']))
 				) {
 					continue;
 				}
@@ -451,7 +447,7 @@ final class Frontend
 
 				$data = [
 					'username' => !empty($h['user']['username']) ? $h['user']['username'] : $lang->na,
-					'avatar_url' => !empty($h['user']['avatar']) ? $h['user']['avatar'] : '',
+					'avatar_url' => get_avatar_url($h['user']['avatar'] ?? ''),
 					'tts' => false,
 				];
 
@@ -534,10 +530,7 @@ final class Frontend
 					// Check if webhook is for delete posts
 					(!isset($h['watch_delete_posts']) || (int)$h['watch_delete_posts'] !== 1) ||
 					// Check if the user is part of the allowed usergroups to use delete posts
-					(!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member(
-							$h['watch_usergroups'],
-							$mybb->user
-						))
+					(!isset($h['watch_usergroups']) || !is_member($h['watch_usergroups']))
 				) {
 					continue;
 				}
@@ -598,13 +591,10 @@ final class Frontend
 			foreach ($webhooks as $h) {
 				// Permissions first
 				if (
-					// Check if webhook is for delete threads
+					// Check if a webhook is for delete threads
 					(!isset($h['watch_delete_threads']) || (int)$h['watch_delete_threads'] !== 1) ||
 					// Check if the user is part of the allowed usergroups to use delete threads
-					(!isset($h['watch_usergroups']) || !\rt\DiscordWebhooks\is_member(
-							$h['watch_usergroups'],
-							$mybb->user
-						))
+					(!isset($h['watch_usergroups']) || !is_member($h['watch_usergroups']))
 				) {
 					continue;
 				}
@@ -708,7 +698,7 @@ final class Frontend
 
 				$data = [
 					'username' => !empty($h['user']['username']) ? $h['user']['username'] : $lang->na,
-					'avatar_url' => !empty($h['user']['avatar']) ? $h['user']['avatar'] : '',
+					'avatar_url' => get_avatar_url($h['user']['avatar'] ?? ''),
 					'tts' => false,
 				];
 
