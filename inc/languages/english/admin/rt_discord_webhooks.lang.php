@@ -45,6 +45,7 @@ $l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message wi
 
  You can use the following variables in your message for post related webhooks: <br>
 {xthreads_X} -> Custom thread field value, where <code>X</code> is the custom thread field key.<br>
+{xthreads_raw_X} -> Custom thread field raw value, where <code>X</code> is the custom thread field key. USE WITH CAUTION<br>
 ';
 $l['rt_discord_webhooks_webhooks_message_append'] = 'Append Message to Post Message';
 $l['rt_discord_webhooks_webhooks_message_append_desc'] = 'If enabled, the above message will be appended to the end of the post message instead of replacing it. Useful for adding additional information to the post message.';

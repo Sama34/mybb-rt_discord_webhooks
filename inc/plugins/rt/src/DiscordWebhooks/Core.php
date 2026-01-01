@@ -417,18 +417,18 @@ class Core
 			$parser = new postParser();
 		}
 
-		$replace_objects['user_signature'] = $parser->parse_message($user_data['signature'], array(
+		$replace_objects['user_signature'] = strip_tags($parser->parse_message($user_data['signature'], array(
 			'allow_html' => !empty($mybb->settings['sightml']),
 			'allow_mycode' => false,
 			'allow_smilies' => false,
 			'filter_badwords' => true
-		));
+		)));
 
-		$replace_objects['user_reputation'] = get_reputation($user_data['reputation'] ?? 0);
+		$replace_objects['user_reputation'] = strip_tags(get_reputation($user_data['reputation'] ?? 0));
 
 		$warning_level = round($user_data['warningpoints'] / $mybb->settings['maxwarningpoints'] * 100);
 
-		$replace_objects['user_warning_points'] = get_colored_warning_level(min($warning_level, 100));
+		$replace_objects['user_warning_points'] = strip_tags(get_colored_warning_level(min($warning_level, 100)));
 
 		$hook_arguments = [
 			'post_id' => $post_id,
@@ -500,7 +500,7 @@ class Core
 				}
 			}
 
-			$replace_objects['user_field_' . $custom_field['fid']] = $custom_field_value ?? '';
+			$replace_objects['user_field_' . $custom_field['fid']] = strip_tags($custom_field_value ?? '');
 		}
 
 		if (!empty($thread_id) &&
@@ -558,18 +558,21 @@ class Core
 				);
 			}
 
+			global $threadfields_x;
+
 			foreach ($threadfields as $threadfield_name => $threadfield_value) {
-				$replace_objects['xthreads_' . $threadfield_name] = $threadfield_value ?? '';
+				$replace_objects['xthreads_' . $threadfield_name] = strip_tags(
+					$threadfields_x[$threadfield_name]['value']
+				);
+
+				$replace_objects['xthreads_raw_' . $threadfield_name] = $threadfields_x[$threadfield_name]['raw_value'];
 			}
 		}
 
 		$plugins->run_hooks('rt_discord_webhooks_get_replace_objects', $hook_arguments);
 
-		return array_map(function (string $value): string {
-			return strip_tags($value);
-		},
-			array_flip(array_map(function (string $value): string {
-				return '{' . $value . '}';
-			}, array_flip($replace_objects))));
+		return array_flip(array_map(function (string $value): string {
+			return '{' . $value . '}';
+		}, array_flip($replace_objects)));
 	}
 }

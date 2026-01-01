@@ -96,7 +96,7 @@ class DiscordHelper
 	}
 
 	/**
-	 * Get mentions list
+	 * Get a mention list
 	 *
 	 * Add a nice list of Role ID, User ID, Channel ID, @here, and @everyone when enabled
 	 *
@@ -130,6 +130,7 @@ class DiscordHelper
 	 *
 	 * @param string $message
 	 * @param bool $allow_html
+	 * @param int $pid
 	 * @return string
 	 */
 	public static function getImageLink(string $message, bool $allow_html = false, int $pid = 0): string
@@ -352,13 +353,13 @@ class DiscordHelper
 	 */
 	public static function thirdPartyIntegration(): void
 	{
-		global $mybb, $db, $cache, $plugins;
+		global $plugins;
 
 		$hook_data = [
 			'webhook_url' => '',
 			// Webhook url from the Discord channel (Set into your plugin a text field where user will be able to set Webhook URL for your plugin)
 			'webhook_method' => 'POST',
-			// Webhook method when sending request to API
+			// Webhook method when sending a request to API
 			'bot' => [
 				'username' => '', // Bot username
 				'avatar_url' => '', // Bot image url
