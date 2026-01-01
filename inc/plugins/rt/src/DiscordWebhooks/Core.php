@@ -63,6 +63,7 @@ class Core
 						'webhook_url',
 						'webhook_name',
 						'webhook_message',
+						'webhook_message_append',
 						'webhook_embeds',
 						'webhook_embeds_color',
 						'webhook_embeds_thumbnail',
@@ -149,6 +150,7 @@ class Core
                     webhook_url TEXT,
                     webhook_name VARCHAR(255) NULL DEFAULT NULL
                     webhook_message TEXT,
+                    webhook_message_append SMALLINT NOT NULL DEFAULT 0,
                     webhook_embeds SMALLINT NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -190,6 +192,7 @@ class Core
                     webhook_url TEXT,
                     webhook_name VARCHAR(255) DEFAULT NULL,
                     webhook_message TEXT,
+                    webhook_message_append INTEGER NOT NULL DEFAULT 0,
                     webhook_embeds INTEGER NOT NULL DEFAULT 0,
                     webhook_embeds_color TEXT,
                     webhook_embeds_thumbnail TEXT,
@@ -231,6 +234,7 @@ class Core
                     `webhook_url` TEXT DEFAULT NULL,
                     `webhook_name` VARCHAR(255) NULL DEFAULT NULL,
                     `webhook_message` TEXT DEFAULT NULL,
+                    `webhook_message_append` TINYINT(4) NOT NULL DEFAULT 0,
                     `webhook_embeds` TINYINT(4) NOT NULL DEFAULT 0,
                     `webhook_embeds_color` TEXT DEFAULT NULL,
                     `webhook_embeds_thumbnail` TEXT DEFAULT NULL,
@@ -380,10 +384,10 @@ class Core
 
 		$replace_objects['user_username'] = $user_data['username'] ?? $lang->guest ?? 'Guest';
 
-		// Event made by registered user
+		// Event made by a registered user
 		if (!empty($user_data['uid'])) {
 			if (trim($user_data['usertitle']) != '') {
-				// Do nothing, no need for an extra variable..
+				// Do nothing, no need for an extra variable.
 			} elseif ($user_group['usertitle'] != '') {
 				$user_data['usertitle'] = $user_group['usertitle'];
 			} elseif (is_array($titles_cache) && !$user_group['usertitle']) {

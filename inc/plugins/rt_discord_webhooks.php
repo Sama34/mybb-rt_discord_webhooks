@@ -98,6 +98,20 @@ function rt_discord_webhooks_activate(): void
 		}
 	}
 
+	if ($db->table_exists('rt_discord_webhooks') &&
+		!$db->field_exists('webhook_message_append', 'rt_discord_webhooks')) {
+		switch ($db->type) {
+			case 'pgsql':
+				$db->add_column('rt_discord_webhooks', 'webhook_message_append', 'SMALLINT NOT NULL DEFAULT 0');
+				break;
+			case 'sqlite':
+				$db->add_column('rt_discord_webhooks', 'webhook_message_append', 'INTEGER NOT NULL DEFAULT 0');
+				break;
+			default:
+				$db->add_column('rt_discord_webhooks', 'webhook_message_append', 'TINYINT(4) NOT NULL DEFAULT 0');
+		}
+	}
+
 	check_php_version();
 	check_pluginlibrary();
 	check_curl_ext();

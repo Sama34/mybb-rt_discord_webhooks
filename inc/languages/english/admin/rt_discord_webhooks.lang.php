@@ -46,6 +46,8 @@ $l['rt_discord_webhooks_webhooks_message_desc'] = 'If not empty, this message wi
  You can use the following variables in your message for post related webhooks: <br>
 {xthreads_X} -> Custom thread field value, where <code>X</code> is the custom thread field key.<br>
 ';
+$l['rt_discord_webhooks_webhooks_message_append'] = 'Append Message to Post Message';
+$l['rt_discord_webhooks_webhooks_message_append_desc'] = 'If enabled, the above message will be appended to the end of the post message instead of replacing it. Useful for adding additional information to the post message.';
 $l['rt_discord_webhooks_webhook_embeds'] = 'Webhook Embeds';
 $l['rt_discord_webhooks_webhook_embeds_desc'] = 'Webhook embeds in Discord are a way to display rich and formatted content within a message sent by a webhook. Embeds allow you to include various elements such as titles, descriptions, fields, images, and more to create visually appealing and structured messages.';
 $l['rt_discord_webhooks_webhook_embeds_color'] = 'Webhook Embeds color (#Hex)';

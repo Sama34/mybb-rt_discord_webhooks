@@ -126,7 +126,9 @@ final class Frontend
 							DiscordHelper::formatMessage(
 								DiscordHelper::truncateMessage(
 									(int)$h['character_limit'],
-									$h['webhook_message'] ?? $thread['message']
+									empty($h['webhook_message_append']) ?
+										($h['webhook_message'] ?? $thread['message']) :
+										$thread['message'] . "\n" . $h['webhook_message']
 								),
 								true
 							)
@@ -189,7 +191,9 @@ final class Frontend
 						DiscordHelper::formatMessage(
 							DiscordHelper::truncateMessage(
 								(int)$h['character_limit'],
-								$h['webhook_message'] ?? $thread['message']
+								empty($h['webhook_message_append']) ?
+									($h['webhook_message'] ?? $thread['message']) :
+									$thread['message'] . "\n" . $h['webhook_message']
 							),
 							true
 						)
@@ -310,7 +314,9 @@ final class Frontend
 								DiscordHelper::formatMessage(
 									DiscordHelper::truncateMessage(
 										(int)$h['character_limit'],
-										$h['webhook_message'] ?? $message
+										empty($h['webhook_message_append']) ?
+											($h['webhook_message'] ?? $message) :
+											$message . "\n" . $h['webhook_message']
 									),
 									true
 								)
@@ -421,7 +427,9 @@ final class Frontend
 							DiscordHelper::formatMessage(
 								DiscordHelper::truncateMessage(
 									(int)$h['character_limit'],
-									$h['webhook_message'] ?? $post['message']
+									empty($h['webhook_message_append']) ?
+										($h['webhook_message'] ?? $post['message']) :
+										$post['message'] . "\n" . $h['webhook_message']
 								),
 								true
 							)
@@ -486,7 +494,9 @@ final class Frontend
 						array_keys($replace_objects),
 						array_values($replace_objects),
 						DiscordHelper::formatMessage(
-							$h['webhook_message'] ?? $lang->rt_discord_webhooks_new_post
+							empty($h['webhook_message_append']) ?
+								($h['webhook_message'] ?? $lang->rt_discord_webhooks_new_post) :
+								$lang->rt_discord_webhooks_new_post . "\n" . $h['webhook_message']
 						)
 					);
 				}
@@ -718,7 +728,9 @@ final class Frontend
 						array_keys($replace_objects),
 						array_values($replace_objects),
 						DiscordHelper::formatMessage(
-							$h['webhook_message'] ?? $lang->rt_discord_webhooks_new_registrations
+							empty($h['webhook_message_append']) ?
+								($h['webhook_message'] ?? $lang->rt_discord_webhooks_new_registrations) :
+								$lang->rt_discord_webhooks_new_registrations . "\n" . $h['webhook_message']
 						)
 					);
 				}

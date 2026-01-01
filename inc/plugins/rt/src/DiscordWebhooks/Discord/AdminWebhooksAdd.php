@@ -94,6 +94,12 @@ final class AdminWebhooksAdd extends AdminWebhooksConfig
 				'webhook_url' => $this->db->escape_string($this->mybb->get_input('webhook_url')),
 				'bot_id' => $this->mybb->get_input('bot_id', MyBB::INPUT_INT),
 				'webhook_message' => $this->db->escape_string($this->mybb->get_input('webhook_message')),
+				'webhook_message_append' => !empty(
+				$this->mybb->get_input(
+					'webhook_message_append',
+					MyBB::INPUT_INT
+				)
+				) ? 1 : 0,
 				'webhook_embeds' => !empty($this->mybb->get_input('webhook_embeds', MyBB::INPUT_INT)) ? 1 : 0,
 				'watch_new_threads' => !empty($this->mybb->get_input('watch_new_threads', MyBB::INPUT_INT)) ? 1 : 0,
 				'watch_new_posts' => !empty($this->mybb->get_input('watch_new_posts', MyBB::INPUT_INT)) ? 1 : 0,
@@ -189,6 +195,18 @@ final class AdminWebhooksAdd extends AdminWebhooksConfig
 				array('id' => 'webhook_message')
 			),
 			'webhook_message'
+		);
+		$form_container->output_row(
+			$this->lang->rt_discord_webhooks_webhooks_message_append,
+			$this->lang->rt_discord_webhooks_webhooks_message_append_desc,
+			$form->generate_yes_no_radio(
+				'webhook_message_append',
+				$this->mybb->get_input('webhook_message_append', MyBB::INPUT_INT),
+				true,
+				array('id' => 'webhook_message_append_yes'),
+				array('id' => 'webhook_message_append_no')
+			),
+			'webhook_message_append'
 		);
 		$form_container->output_row(
 			$this->lang->rt_discord_webhooks_webhook_embeds . ' <em>*</em>',
