@@ -402,7 +402,7 @@ class DiscordHelper
 		];
 
 		// Hook into RT Discord Webhooks start
-		$plugins->run_hooks('rt_discord_webhooks_thirdparty_start');
+		$plugins->run_hooks('rt_discord_webhooks_thirdparty_start', $hook_data);
 
 		$embeds = [
 			[
@@ -448,7 +448,7 @@ class DiscordHelper
 		}
 
 		// Hook into RT Discord Webhooks end
-		$plugins->run_hooks('rt_discord_webhooks_thirdparty_end');
+		$plugins->run_hooks('rt_discord_webhooks_thirdparty_end', $hook_data);
 
 		if (!empty($hook_data['webhook_url'])) {
 			// Send Webhook request to the Discord
