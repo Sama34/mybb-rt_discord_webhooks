@@ -509,11 +509,11 @@ class Core
 			$threadfield_cache = xthreads_gettfcache()) {
 			$query_fields = ['t.tid'];
 
-			foreach ($threadfield_cache as $k => &$v) {
+			foreach ($threadfield_cache as $k => &$threadfield) {
 				$available = empty($v['forums']);
 
 				if (!$available) {
-					foreach (array_map('intval', explode(',', $v['forums'])) as $fid) {
+					foreach (array_map('intval', explode(',', $threadfield['forums'])) as $fid) {
 						if ($fid === $forum_id) {
 							$available = true;
 
@@ -523,8 +523,10 @@ class Core
 				}
 
 				if ($available) {
-					$query_fields[] = "tfd.`{$v['field']}` AS `xthreads_{$v['field']}`";
+					$query_fields[] = "tfd.`{$threadfield['field']}` AS `xthreads_{$threadfield['field']}`";
 				}
+
+				$replace_objects['xthreads_' . $threadfield['field']] = $replace_objects['xthreads_raw_' . $threadfield['field']] = '';
 			}
 
 			$query = $db->simple_select(
@@ -561,23 +563,9 @@ class Core
 			global $threadfields_x;
 
 			foreach ($threadfields as $threadfield_name => $threadfield_value) {
-				if (is_array($threadfields_x[$threadfield_name]['value'])) {
-					// $threadfield_cache[$threadfield_name] probably works fine here
-					$replace_objects['xthreads_' . $threadfield_name] = strip_tags(
-						strip_tags(
-							implode(
-								$threadfield_cache[$threadfield_name]['multival'] ?? $lang->comma,
-								$threadfields_x[$threadfield_name]['value']
-							)
-						)
-					);
-				} else {
-					$replace_objects['xthreads_' . $threadfield_name] = strip_tags(
-						$threadfields_x[$threadfield_name]['value'] ?? ''
-					);
-				}
+				$replace_objects['xthreads_' . $threadfield_name] = strip_tags($threadfield_value);
 
-				$replace_objects['xthreads_raw_' . $threadfield_name] = $threadfields_x[$threadfield_name]['raw_value'];
+				$replace_objects['xthreads_raw_' . $threadfield_name] = $threadfields_x[$threadfield_name]['raw_value'] ?? '';
 			}
 		}
 
